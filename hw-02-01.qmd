@@ -1,5 +1,5 @@
 ---
-title: "Homework-02-R"
+title: "Diagnosing like a Data Doctor"
 author: "VISHAL BHASHYAAM"
 format: html
 editor: visual

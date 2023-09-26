@@ -1,0 +1,3842 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="VISHAL BHASHYAAM">
+
+<title>Homework-02-R</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="hw-02-Rexercise2_files/libs/clipboard/clipboard.min.js"></script>
+<script src="hw-02-Rexercise2_files/libs/quarto-html/quarto.js"></script>
+<script src="hw-02-Rexercise2_files/libs/quarto-html/popper.min.js"></script>
+<script src="hw-02-Rexercise2_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="hw-02-Rexercise2_files/libs/quarto-html/anchor.min.js"></script>
+<link href="hw-02-Rexercise2_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="hw-02-Rexercise2_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="hw-02-Rexercise2_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="hw-02-Rexercise2_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="hw-02-Rexercise2_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Homework-02-R</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>VISHAL BHASHYAAM </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="diagnosing-like-a-data-doctor" class="level1">
+<h1>Diagnosing like a Data Doctor</h1>
+<section id="purpose" class="level2">
+<h2 class="anchored" data-anchor-id="purpose">Purpose:</h2>
+<section id="exploring-a-novel-data-set-and-produce-publication-quality-tables-and-reports" class="level4">
+<h4 class="anchored" data-anchor-id="exploring-a-novel-data-set-and-produce-publication-quality-tables-and-reports">Exploring a novel data set and produce publication quality tables and reports</h4>
+</section>
+</section>
+<section id="take-aways" class="level2">
+<h2 class="anchored" data-anchor-id="take-aways">Take-aways</h2>
+<ol type="1">
+<li><p>Load and explore a data set with publication quality tables</p></li>
+<li><p>Diagnose outliers and missing values in a data set</p></li>
+<li><p>Prepare an HTML summary report showcasing properties of a data set</p></li>
+</ol>
+</section>
+<section id="required-setup" class="level2">
+<h2 class="anchored" data-anchor-id="required-setup">Required Setup</h2>
+<p>Prepare the environment with required packages</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Sets the number of significant figures to three -e.g, 1.333</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">digits =</span> <span class="dv">3</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Downloading required package for quick package loading</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span>(<span class="sc">!</span><span class="fu">require</span>(pacman))</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">installed.packages</span>(<span class="st">"pacman"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: pacman</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">#loading package</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(dlookr, <span class="co">#Exploratory data analysis(EDA)</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>               formattable, <span class="co"># HTML tables from R outputs</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>               here, <span class="co"># Standardizes paths to data </span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>               kableExtra, <span class="co"># Alternative to formattable </span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>               knitr, <span class="co"># Needed to write HTML reports</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>               missRanger, <span class="co"># To generate NA's </span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>               tidyverse <span class="co"># Powerful data wrangling package suite like Pandas for python</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>               )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="load-and-examine-the-dataset" class="level2">
+<h2 class="anchored" data-anchor-id="load-and-examine-the-dataset">Load and Examine the Dataset</h2>
+<ul>
+<li><p>Load and view</p></li>
+<li><p>Examine columns and data types</p></li>
+<li><p>define box plots</p></li>
+<li><p>describe metadata</p></li>
+</ul>
+<p>We will be using Refugees R package,</p>
+<p>This package provides data from three major sources:</p>
+<ul>
+<li><p>Data from UNHCR's annual statistical activities dating back to 1951.</p></li>
+<li><p>Data from the United Nations Relief and Works Agency for Palestine Refugees in the Near East (UNRWA), specifically for registered Palestine refugees under UNRWA's mandate.</p></li>
+<li><p>Data from the Internal Displacement Monitoring Centre (IDMC) on people displaced within their country due to conflict or violence.</p></li>
+</ul>
+<p>The {refugees} package includes eight datasets. I will be working with <code>population</code> with data from 2010 to 2022.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>dataset <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_csv</span>(<span class="st">'https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-08-22/population.csv'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 64809 Columns: 16
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr  (6): coo_name, coo, coo_iso, coa_name, coa, coa_iso
+dbl (10): year, refugees, asylum_seekers, returned_refugees, idps, returned_...
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>populations2010 <span class="ot">&lt;-</span> <span class="fu">filter</span>(dataset, year <span class="sc">&gt;=</span> <span class="dv">2010</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(populations2010, <span class="st">"population.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>dataset <span class="sc">|&gt;</span> </span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>   <span class="fu">formattable</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<table class="table table-condensed">
+<thead>
+<tr>
+<th style="text-align:right;">
+year
+</th>
+<th style="text-align:right;">
+coo_name
+</th>
+<th style="text-align:right;">
+coo
+</th>
+<th style="text-align:right;">
+coo_iso
+</th>
+<th style="text-align:right;">
+coa_name
+</th>
+<th style="text-align:right;">
+coa
+</th>
+<th style="text-align:right;">
+coa_iso
+</th>
+<th style="text-align:right;">
+refugees
+</th>
+<th style="text-align:right;">
+asylum_seekers
+</th>
+<th style="text-align:right;">
+returned_refugees
+</th>
+<th style="text-align:right;">
+idps
+</th>
+<th style="text-align:right;">
+returned_idps
+</th>
+<th style="text-align:right;">
+stateless
+</th>
+<th style="text-align:right;">
+ooc
+</th>
+<th style="text-align:right;">
+oip
+</th>
+<th style="text-align:right;">
+hst
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+2010
+</td>
+<td style="text-align:right;">
+Afghanistan
+</td>
+<td style="text-align:right;">
+AFG
+</td>
+<td style="text-align:right;">
+AFG
+</td>
+<td style="text-align:right;">
+Afghanistan
+</td>
+<td style="text-align:right;">
+AFG
+</td>
+<td style="text-align:right;">
+AFG
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+351907
+</td>
+<td style="text-align:right;">
+3366
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+838250
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2010
+</td>
+<td style="text-align:right;">
+Iran (Islamic Rep.&nbsp;of)
+</td>
+<td style="text-align:right;">
+IRN
+</td>
+<td style="text-align:right;">
+IRN
+</td>
+<td style="text-align:right;">
+Afghanistan
+</td>
+<td style="text-align:right;">
+AFG
+</td>
+<td style="text-align:right;">
+AFG
+</td>
+<td style="text-align:right;">
+30
+</td>
+<td style="text-align:right;">
+21
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2010
+</td>
+<td style="text-align:right;">
+Iraq
+</td>
+<td style="text-align:right;">
+IRQ
+</td>
+<td style="text-align:right;">
+IRQ
+</td>
+<td style="text-align:right;">
+Afghanistan
+</td>
+<td style="text-align:right;">
+AFG
+</td>
+<td style="text-align:right;">
+AFG
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2010
+</td>
+<td style="text-align:right;">
+Pakistan
+</td>
+<td style="text-align:right;">
+PAK
+</td>
+<td style="text-align:right;">
+PAK
+</td>
+<td style="text-align:right;">
+Afghanistan
+</td>
+<td style="text-align:right;">
+AFG
+</td>
+<td style="text-align:right;">
+AFG
+</td>
+<td style="text-align:right;">
+6398
+</td>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2010
+</td>
+<td style="text-align:right;">
+Egypt
+</td>
+<td style="text-align:right;">
+ARE
+</td>
+<td style="text-align:right;">
+EGY
+</td>
+<td style="text-align:right;">
+Albania
+</td>
+<td style="text-align:right;">
+ALB
+</td>
+<td style="text-align:right;">
+ALB
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2010
+</td>
+<td style="text-align:right;">
+China
+</td>
+<td style="text-align:right;">
+CHI
+</td>
+<td style="text-align:right;">
+CHN
+</td>
+<td style="text-align:right;">
+Albania
+</td>
+<td style="text-align:right;">
+ALB
+</td>
+<td style="text-align:right;">
+ALB
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+</tbody>
+
+</table>
+</div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>dataset <span class="sc">|&gt;</span> </span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tail</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>   <span class="fu">formattable</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<table class="table table-condensed">
+<thead>
+<tr>
+<th style="text-align:right;">
+year
+</th>
+<th style="text-align:right;">
+coo_name
+</th>
+<th style="text-align:right;">
+coo
+</th>
+<th style="text-align:right;">
+coo_iso
+</th>
+<th style="text-align:right;">
+coa_name
+</th>
+<th style="text-align:right;">
+coa
+</th>
+<th style="text-align:right;">
+coa_iso
+</th>
+<th style="text-align:right;">
+refugees
+</th>
+<th style="text-align:right;">
+asylum_seekers
+</th>
+<th style="text-align:right;">
+returned_refugees
+</th>
+<th style="text-align:right;">
+idps
+</th>
+<th style="text-align:right;">
+returned_idps
+</th>
+<th style="text-align:right;">
+stateless
+</th>
+<th style="text-align:right;">
+ooc
+</th>
+<th style="text-align:right;">
+oip
+</th>
+<th style="text-align:right;">
+hst
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+2022
+</td>
+<td style="text-align:right;">
+Venezuela (Bolivarian Republic of)
+</td>
+<td style="text-align:right;">
+VEN
+</td>
+<td style="text-align:right;">
+VEN
+</td>
+<td style="text-align:right;">
+Anguilla
+</td>
+<td style="text-align:right;">
+AIA
+</td>
+<td style="text-align:right;">
+AIA
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+25
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2022
+</td>
+<td style="text-align:right;">
+Venezuela (Bolivarian Republic of)
+</td>
+<td style="text-align:right;">
+VEN
+</td>
+<td style="text-align:right;">
+VEN
+</td>
+<td style="text-align:right;">
+Aruba
+</td>
+<td style="text-align:right;">
+ABW
+</td>
+<td style="text-align:right;">
+ABW
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+17000
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2022
+</td>
+<td style="text-align:right;">
+Aruba
+</td>
+<td style="text-align:right;">
+ABW
+</td>
+<td style="text-align:right;">
+ABW
+</td>
+<td style="text-align:right;">
+Aruba
+</td>
+<td style="text-align:right;">
+ABW
+</td>
+<td style="text-align:right;">
+ABW
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+1700
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2022
+</td>
+<td style="text-align:right;">
+Venezuela (Bolivarian Republic of)
+</td>
+<td style="text-align:right;">
+VEN
+</td>
+<td style="text-align:right;">
+VEN
+</td>
+<td style="text-align:right;">
+Curacao
+</td>
+<td style="text-align:right;">
+CUW
+</td>
+<td style="text-align:right;">
+CUW
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+14000
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2022
+</td>
+<td style="text-align:right;">
+Curacao
+</td>
+<td style="text-align:right;">
+CUW
+</td>
+<td style="text-align:right;">
+CUW
+</td>
+<td style="text-align:right;">
+Curacao
+</td>
+<td style="text-align:right;">
+CUW
+</td>
+<td style="text-align:right;">
+CUW
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+1700
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2022
+</td>
+<td style="text-align:right;">
+Venezuela (Bolivarian Republic of)
+</td>
+<td style="text-align:right;">
+VEN
+</td>
+<td style="text-align:right;">
+VEN
+</td>
+<td style="text-align:right;">
+Sint Maarten (Dutch part)
+</td>
+<td style="text-align:right;">
+SXM
+</td>
+<td style="text-align:right;">
+SXM
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+122
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+</tbody>
+
+</table>
+</div>
+</div>
+</section>
+<section id="diagnosing-the-data" class="level2">
+<h2 class="anchored" data-anchor-id="diagnosing-the-data">Diagnosing the data</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>dataset <span class="sc">|&gt;</span> </span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">diagnose</span>() <span class="sc">|&gt;</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">formattable</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<table class="table table-condensed">
+<thead>
+<tr>
+<th style="text-align:right;">
+variables
+</th>
+<th style="text-align:right;">
+types
+</th>
+<th style="text-align:right;">
+missing_count
+</th>
+<th style="text-align:right;">
+missing_percent
+</th>
+<th style="text-align:right;">
+unique_count
+</th>
+<th style="text-align:right;">
+unique_rate
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+year
+</td>
+<td style="text-align:right;">
+numeric
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+13
+</td>
+<td style="text-align:right;">
+0.000201
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coo_name
+</td>
+<td style="text-align:right;">
+character
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+210
+</td>
+<td style="text-align:right;">
+0.003240
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coo
+</td>
+<td style="text-align:right;">
+character
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+210
+</td>
+<td style="text-align:right;">
+0.003240
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coo_iso
+</td>
+<td style="text-align:right;">
+character
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+210
+</td>
+<td style="text-align:right;">
+0.003240
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coa_name
+</td>
+<td style="text-align:right;">
+character
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+189
+</td>
+<td style="text-align:right;">
+0.002916
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coa
+</td>
+<td style="text-align:right;">
+character
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+189
+</td>
+<td style="text-align:right;">
+0.002916
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coa_iso
+</td>
+<td style="text-align:right;">
+character
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+189
+</td>
+<td style="text-align:right;">
+0.002916
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+refugees
+</td>
+<td style="text-align:right;">
+numeric
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+5466
+</td>
+<td style="text-align:right;">
+0.084340
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+asylum_seekers
+</td>
+<td style="text-align:right;">
+numeric
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+3870
+</td>
+<td style="text-align:right;">
+0.059714
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+returned_refugees
+</td>
+<td style="text-align:right;">
+numeric
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+596
+</td>
+<td style="text-align:right;">
+0.009196
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+idps
+</td>
+<td style="text-align:right;">
+numeric
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+351
+</td>
+<td style="text-align:right;">
+0.005416
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+returned_idps
+</td>
+<td style="text-align:right;">
+numeric
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+205
+</td>
+<td style="text-align:right;">
+0.003163
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+stateless
+</td>
+<td style="text-align:right;">
+numeric
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+627
+</td>
+<td style="text-align:right;">
+0.009675
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+ooc
+</td>
+<td style="text-align:right;">
+numeric
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+685
+</td>
+<td style="text-align:right;">
+0.010570
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+oip
+</td>
+<td style="text-align:right;">
+numeric
+</td>
+<td style="text-align:right;">
+64709
+</td>
+<td style="text-align:right;">
+99.8
+</td>
+<td style="text-align:right;">
+96
+</td>
+<td style="text-align:right;">
+0.001481
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+hst
+</td>
+<td style="text-align:right;">
+numeric
+</td>
+<td style="text-align:right;">
+58845
+</td>
+<td style="text-align:right;">
+90.8
+</td>
+<td style="text-align:right;">
+52
+</td>
+<td style="text-align:right;">
+0.000802
+</td>
+</tr>
+</tbody>
+
+</table>
+</div>
+</div>
+<ul>
+<li><p><code>variables</code> : name of each variable in the column</p></li>
+<li><p><code>types</code> : data type of each variable</p></li>
+<li><p><code>missing_count</code> : number of missing values</p></li>
+<li><p><code>missing_percent</code> : percentage of missing values</p></li>
+<li><p><code>unique_count</code>: number of unique values</p></li>
+<li><p><code>unique_rate</code> : rate of unique values - unique_count / Number of observations</p></li>
+</ul>
+</section>
+<section id="summary-statistics-of-the-data" class="level2">
+<h2 class="anchored" data-anchor-id="summary-statistics-of-the-data">Summary Statistics of the Data</h2>
+<section id="numerical-variables" class="level3">
+<h3 class="anchored" data-anchor-id="numerical-variables">Numerical Variables</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary statistics of the numerical column</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>dataset <span class="sc">|&gt;</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">diagnose_numeric</span>() <span class="sc">|&gt;</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">formattable</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<table class="table table-condensed">
+<thead>
+<tr>
+<th style="text-align:right;">
+variables
+</th>
+<th style="text-align:right;">
+min
+</th>
+<th style="text-align:right;">
+Q1
+</th>
+<th style="text-align:right;">
+mean
+</th>
+<th style="text-align:right;">
+median
+</th>
+<th style="text-align:right;">
+Q3
+</th>
+<th style="text-align:right;">
+max
+</th>
+<th style="text-align:right;">
+zero
+</th>
+<th style="text-align:right;">
+minus
+</th>
+<th style="text-align:right;">
+outlier
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+year
+</td>
+<td style="text-align:right;">
+2010
+</td>
+<td style="text-align:right;">
+2013
+</td>
+<td style="text-align:right;">
+2016.4
+</td>
+<td style="text-align:right;">
+2017
+</td>
+<td style="text-align:right;">
+2020
+</td>
+<td style="text-align:right;">
+2022
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+refugees
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+3440.0
+</td>
+<td style="text-align:right;">
+12
+</td>
+<td style="text-align:right;">
+88
+</td>
+<td style="text-align:right;">
+3737369
+</td>
+<td style="text-align:right;">
+13264
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+11826
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+asylum_seekers
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+564.2
+</td>
+<td style="text-align:right;">
+8
+</td>
+<td style="text-align:right;">
+57
+</td>
+<td style="text-align:right;">
+940668
+</td>
+<td style="text-align:right;">
+18455
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+11052
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+returned_refugees
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+73.5
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+381275
+</td>
+<td style="text-align:right;">
+63258
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1551
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+idps
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+7088.7
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+8252788
+</td>
+<td style="text-align:right;">
+64429
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+380
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+returned_idps
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+706.2
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+2134349
+</td>
+<td style="text-align:right;">
+64605
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+204
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+stateless
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+756.6
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+955399
+</td>
+<td style="text-align:right;">
+63828
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+981
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+ooc
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+437.5
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+3206577
+</td>
+<td style="text-align:right;">
+63127
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+1682
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+oip
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+8218
+</td>
+<td style="text-align:right;">
+196611.2
+</td>
+<td style="text-align:right;">
+23165
+</td>
+<td style="text-align:right;">
+164760
+</td>
+<td style="text-align:right;">
+2453862
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+16
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+hst
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+6264.7
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+15209720
+</td>
+<td style="text-align:right;">
+5905
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+59
+</td>
+</tr>
+</tbody>
+
+</table>
+</div>
+</div>
+<ul>
+<li><p><code>min</code>: minimum value</p></li>
+<li><p><code>Q1</code>: 1/4 quartile, 25th percentile</p></li>
+<li><p><code>mean</code>: arithmetic mean (average value)</p></li>
+<li><p><code>median</code>: median, 50th percentile</p></li>
+<li><p><code>Q3</code>: 3/4 quartile, 75th percentile</p></li>
+<li><p><code>max</code>: maximum value</p></li>
+<li><p><code>zero</code>: number of observations with the value 0</p></li>
+<li><p><code>minus</code>: number of observations with negative numbers</p></li>
+<li><p><code>outlier</code>: number of outliers</p></li>
+</ul>
+</section>
+</section>
+<section id="outliers" class="level2">
+<h2 class="anchored" data-anchor-id="outliers">Outliers</h2>
+<p>Values outside of 1.5 * IQR</p>
+<p>There are several numerical variables that have outliers above, filtering the outlier lets see how the data look like without them.</p>
+<ul>
+<li><p>Create a table with columns containing outliers</p></li>
+<li><p>Plot outliers in a box plot and histogram</p></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Table showing outliers</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="fu">diagnose_outlier</span>(dataset) <span class="sc">|&gt;</span> </span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(outliers_ratio<span class="sc">&gt;</span><span class="dv">0</span>) <span class="sc">|&gt;</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">formattable</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<table class="table table-condensed">
+<thead>
+<tr>
+<th style="text-align:right;">
+variables
+</th>
+<th style="text-align:right;">
+outliers_cnt
+</th>
+<th style="text-align:right;">
+outliers_ratio
+</th>
+<th style="text-align:right;">
+outliers_mean
+</th>
+<th style="text-align:right;">
+with_mean
+</th>
+<th style="text-align:right;">
+without_mean
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+refugees
+</td>
+<td style="text-align:right;">
+11826
+</td>
+<td style="text-align:right;">
+18.2475
+</td>
+<td style="text-align:right;">
+18741
+</td>
+<td style="text-align:right;">
+3440.0
+</td>
+<td style="text-align:right;">
+24.8
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+asylum_seekers
+</td>
+<td style="text-align:right;">
+11052
+</td>
+<td style="text-align:right;">
+17.0532
+</td>
+<td style="text-align:right;">
+3224
+</td>
+<td style="text-align:right;">
+564.2
+</td>
+<td style="text-align:right;">
+17.2
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+returned_refugees
+</td>
+<td style="text-align:right;">
+1551
+</td>
+<td style="text-align:right;">
+2.3932
+</td>
+<td style="text-align:right;">
+3070
+</td>
+<td style="text-align:right;">
+73.5
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+idps
+</td>
+<td style="text-align:right;">
+380
+</td>
+<td style="text-align:right;">
+0.5863
+</td>
+<td style="text-align:right;">
+1208977
+</td>
+<td style="text-align:right;">
+7088.7
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+returned_idps
+</td>
+<td style="text-align:right;">
+204
+</td>
+<td style="text-align:right;">
+0.3148
+</td>
+<td style="text-align:right;">
+224340
+</td>
+<td style="text-align:right;">
+706.2
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+stateless
+</td>
+<td style="text-align:right;">
+981
+</td>
+<td style="text-align:right;">
+1.5137
+</td>
+<td style="text-align:right;">
+49986
+</td>
+<td style="text-align:right;">
+756.6
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+ooc
+</td>
+<td style="text-align:right;">
+1682
+</td>
+<td style="text-align:right;">
+2.5953
+</td>
+<td style="text-align:right;">
+16857
+</td>
+<td style="text-align:right;">
+437.5
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+oip
+</td>
+<td style="text-align:right;">
+16
+</td>
+<td style="text-align:right;">
+0.0247
+</td>
+<td style="text-align:right;">
+932402
+</td>
+<td style="text-align:right;">
+196611.2
+</td>
+<td style="text-align:right;">
+56460.6
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+hst
+</td>
+<td style="text-align:right;">
+59
+</td>
+<td style="text-align:right;">
+0.0910
+</td>
+<td style="text-align:right;">
+633262
+</td>
+<td style="text-align:right;">
+6264.7
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+</tr>
+</tbody>
+
+</table>
+</div>
+</div>
+<ul>
+<li><p><code>outliers_cnt</code>: number of outliers</p></li>
+<li><p><code>outliers_ratio</code>: ratio of outliers over all values</p></li>
+<li><p><code>outliers_mean</code>: arithmetic mean (average value) of outlier values</p></li>
+<li><p><code>with_mean</code>: arithmetic mean of all values <strong>including</strong> outliers</p></li>
+<li><p><code>without_mean</code>: arithmetic mean of all values <strong>excluding</strong> outliers</p></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plotting outliers with selected columns</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>dataset[<span class="st">"refugees"</span>] <span class="sc">|&gt;</span> <span class="fu">plot_outlier</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="hw-02-Rexercise2_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># For plotiing outliers for all columns </span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>dataset <span class="sc">|&gt;</span> <span class="fu">plot_outlier</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="hw-02-Rexercise2_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="hw-02-Rexercise2_files/figure-html/unnamed-chunk-8-2.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="hw-02-Rexercise2_files/figure-html/unnamed-chunk-8-3.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="hw-02-Rexercise2_files/figure-html/unnamed-chunk-8-4.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="hw-02-Rexercise2_files/figure-html/unnamed-chunk-8-5.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="hw-02-Rexercise2_files/figure-html/unnamed-chunk-8-6.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="hw-02-Rexercise2_files/figure-html/unnamed-chunk-8-7.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="hw-02-Rexercise2_files/figure-html/unnamed-chunk-8-8.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="hw-02-Rexercise2_files/figure-html/unnamed-chunk-8-9.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="hw-02-Rexercise2_files/figure-html/unnamed-chunk-8-10.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="missing-values-nas" class="level2">
+<h2 class="anchored" data-anchor-id="missing-values-nas">Missing Values (NA’s)</h2>
+<ul>
+<li><p>Table showing the extent of NA’s in columns containing them</p></li>
+<li><p>Plot showing the frequency of missing values</p></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create the NA table </span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>dataset <span class="sc">|&gt;</span> </span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">generateNA</span>(<span class="at">p=</span><span class="fl">0.3</span>) <span class="sc">|&gt;</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_na_pareto</span>(<span class="at">only_na =</span> <span class="cn">TRUE</span>,<span class="at">plot =</span> <span class="cn">FALSE</span>)<span class="sc">|&gt;</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">formattable</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<table class="table table-condensed">
+<thead>
+<tr>
+<th style="text-align:right;">
+variable
+</th>
+<th style="text-align:right;">
+frequencies
+</th>
+<th style="text-align:right;">
+ratio
+</th>
+<th style="text-align:right;">
+grade
+</th>
+<th style="text-align:right;">
+cumulative
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+oip
+</td>
+<td style="text-align:right;">
+64738
+</td>
+<td style="text-align:right;">
+0.999
+</td>
+<td style="text-align:right;">
+Remove
+</td>
+<td style="text-align:right;">
+16.3
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+hst
+</td>
+<td style="text-align:right;">
+60619
+</td>
+<td style="text-align:right;">
+0.935
+</td>
+<td style="text-align:right;">
+Remove
+</td>
+<td style="text-align:right;">
+31.5
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+asylum_seekers
+</td>
+<td style="text-align:right;">
+19443
+</td>
+<td style="text-align:right;">
+0.300
+</td>
+<td style="text-align:right;">
+Bad
+</td>
+<td style="text-align:right;">
+36.4
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coa
+</td>
+<td style="text-align:right;">
+19443
+</td>
+<td style="text-align:right;">
+0.300
+</td>
+<td style="text-align:right;">
+Bad
+</td>
+<td style="text-align:right;">
+41.3
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coa_iso
+</td>
+<td style="text-align:right;">
+19443
+</td>
+<td style="text-align:right;">
+0.300
+</td>
+<td style="text-align:right;">
+Bad
+</td>
+<td style="text-align:right;">
+46.2
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coa_name
+</td>
+<td style="text-align:right;">
+19443
+</td>
+<td style="text-align:right;">
+0.300
+</td>
+<td style="text-align:right;">
+Bad
+</td>
+<td style="text-align:right;">
+51.1
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coo
+</td>
+<td style="text-align:right;">
+19443
+</td>
+<td style="text-align:right;">
+0.300
+</td>
+<td style="text-align:right;">
+Bad
+</td>
+<td style="text-align:right;">
+56.0
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coo_iso
+</td>
+<td style="text-align:right;">
+19443
+</td>
+<td style="text-align:right;">
+0.300
+</td>
+<td style="text-align:right;">
+Bad
+</td>
+<td style="text-align:right;">
+60.9
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coo_name
+</td>
+<td style="text-align:right;">
+19443
+</td>
+<td style="text-align:right;">
+0.300
+</td>
+<td style="text-align:right;">
+Bad
+</td>
+<td style="text-align:right;">
+65.8
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+idps
+</td>
+<td style="text-align:right;">
+19443
+</td>
+<td style="text-align:right;">
+0.300
+</td>
+<td style="text-align:right;">
+Bad
+</td>
+<td style="text-align:right;">
+70.7
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+ooc
+</td>
+<td style="text-align:right;">
+19443
+</td>
+<td style="text-align:right;">
+0.300
+</td>
+<td style="text-align:right;">
+Bad
+</td>
+<td style="text-align:right;">
+75.5
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+refugees
+</td>
+<td style="text-align:right;">
+19443
+</td>
+<td style="text-align:right;">
+0.300
+</td>
+<td style="text-align:right;">
+Bad
+</td>
+<td style="text-align:right;">
+80.4
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+returned_idps
+</td>
+<td style="text-align:right;">
+19443
+</td>
+<td style="text-align:right;">
+0.300
+</td>
+<td style="text-align:right;">
+Bad
+</td>
+<td style="text-align:right;">
+85.3
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+returned_refugees
+</td>
+<td style="text-align:right;">
+19443
+</td>
+<td style="text-align:right;">
+0.300
+</td>
+<td style="text-align:right;">
+Bad
+</td>
+<td style="text-align:right;">
+90.2
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+stateless
+</td>
+<td style="text-align:right;">
+19443
+</td>
+<td style="text-align:right;">
+0.300
+</td>
+<td style="text-align:right;">
+Bad
+</td>
+<td style="text-align:right;">
+95.1
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+year
+</td>
+<td style="text-align:right;">
+19443
+</td>
+<td style="text-align:right;">
+0.300
+</td>
+<td style="text-align:right;">
+Bad
+</td>
+<td style="text-align:right;">
+100.0
+</td>
+</tr>
+</tbody>
+
+</table>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the intersect of the columns with the most missing values</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="co"># This means that some combinations of columns have missing values in the same row</span></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>dataset <span class="sc">|&gt;</span> </span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">generateNA</span>(<span class="at">p=</span><span class="fl">0.3</span>) <span class="sc">|&gt;</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span> (refugees,returned_refugees,stateless,returned_idps) <span class="sc">|&gt;</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_na_intersect</span>(<span class="at">only_na =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="hw-02-Rexercise2_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="categorical-variables" class="level2">
+<h2 class="anchored" data-anchor-id="categorical-variables">Categorical Variables</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Diagnosing the categorical variables</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>dataset <span class="sc">|&gt;</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">diagnose_category</span>() <span class="sc">|&gt;</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">formattable</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<table class="table table-condensed">
+<thead>
+<tr>
+<th style="text-align:right;">
+variables
+</th>
+<th style="text-align:right;">
+levels
+</th>
+<th style="text-align:right;">
+N
+</th>
+<th style="text-align:right;">
+freq
+</th>
+<th style="text-align:right;">
+ratio
+</th>
+<th style="text-align:right;">
+rank
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+coo_name
+</td>
+<td style="text-align:right;">
+Syrian Arab Rep.&nbsp;
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+1352
+</td>
+<td style="text-align:right;">
+2.09
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coo_name
+</td>
+<td style="text-align:right;">
+Somalia
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+1345
+</td>
+<td style="text-align:right;">
+2.08
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coo_name
+</td>
+<td style="text-align:right;">
+Iraq
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+1281
+</td>
+<td style="text-align:right;">
+1.98
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coo_name
+</td>
+<td style="text-align:right;">
+Dem. Rep.&nbsp;of the Congo
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+1269
+</td>
+<td style="text-align:right;">
+1.96
+</td>
+<td style="text-align:right;">
+4
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coo_name
+</td>
+<td style="text-align:right;">
+Sudan
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+1228
+</td>
+<td style="text-align:right;">
+1.89
+</td>
+<td style="text-align:right;">
+5
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coo_name
+</td>
+<td style="text-align:right;">
+Afghanistan
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+1154
+</td>
+<td style="text-align:right;">
+1.78
+</td>
+<td style="text-align:right;">
+6
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coo_name
+</td>
+<td style="text-align:right;">
+Eritrea
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+1088
+</td>
+<td style="text-align:right;">
+1.68
+</td>
+<td style="text-align:right;">
+7
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coo_name
+</td>
+<td style="text-align:right;">
+Iran (Islamic Rep.&nbsp;of)
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+1079
+</td>
+<td style="text-align:right;">
+1.66
+</td>
+<td style="text-align:right;">
+8
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coo_name
+</td>
+<td style="text-align:right;">
+Stateless
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+1075
+</td>
+<td style="text-align:right;">
+1.66
+</td>
+<td style="text-align:right;">
+9
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coo_name
+</td>
+<td style="text-align:right;">
+Ethiopia
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+1066
+</td>
+<td style="text-align:right;">
+1.64
+</td>
+<td style="text-align:right;">
+10
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coo
+</td>
+<td style="text-align:right;">
+SYR
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+1352
+</td>
+<td style="text-align:right;">
+2.09
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coo
+</td>
+<td style="text-align:right;">
+SOM
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+1345
+</td>
+<td style="text-align:right;">
+2.08
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coo
+</td>
+<td style="text-align:right;">
+IRQ
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+1281
+</td>
+<td style="text-align:right;">
+1.98
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coo
+</td>
+<td style="text-align:right;">
+COD
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+1269
+</td>
+<td style="text-align:right;">
+1.96
+</td>
+<td style="text-align:right;">
+4
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coo
+</td>
+<td style="text-align:right;">
+SUD
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+1228
+</td>
+<td style="text-align:right;">
+1.89
+</td>
+<td style="text-align:right;">
+5
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coo
+</td>
+<td style="text-align:right;">
+AFG
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+1154
+</td>
+<td style="text-align:right;">
+1.78
+</td>
+<td style="text-align:right;">
+6
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coo
+</td>
+<td style="text-align:right;">
+ERT
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+1088
+</td>
+<td style="text-align:right;">
+1.68
+</td>
+<td style="text-align:right;">
+7
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coo
+</td>
+<td style="text-align:right;">
+IRN
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+1079
+</td>
+<td style="text-align:right;">
+1.66
+</td>
+<td style="text-align:right;">
+8
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coo
+</td>
+<td style="text-align:right;">
+STA
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+1075
+</td>
+<td style="text-align:right;">
+1.66
+</td>
+<td style="text-align:right;">
+9
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coo
+</td>
+<td style="text-align:right;">
+ETH
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+1066
+</td>
+<td style="text-align:right;">
+1.64
+</td>
+<td style="text-align:right;">
+10
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coo_iso
+</td>
+<td style="text-align:right;">
+SYR
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+1352
+</td>
+<td style="text-align:right;">
+2.09
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coo_iso
+</td>
+<td style="text-align:right;">
+SOM
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+1345
+</td>
+<td style="text-align:right;">
+2.08
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coo_iso
+</td>
+<td style="text-align:right;">
+IRQ
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+1281
+</td>
+<td style="text-align:right;">
+1.98
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coo_iso
+</td>
+<td style="text-align:right;">
+COD
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+1269
+</td>
+<td style="text-align:right;">
+1.96
+</td>
+<td style="text-align:right;">
+4
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coo_iso
+</td>
+<td style="text-align:right;">
+SDN
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+1228
+</td>
+<td style="text-align:right;">
+1.89
+</td>
+<td style="text-align:right;">
+5
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coo_iso
+</td>
+<td style="text-align:right;">
+AFG
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+1154
+</td>
+<td style="text-align:right;">
+1.78
+</td>
+<td style="text-align:right;">
+6
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coo_iso
+</td>
+<td style="text-align:right;">
+ERI
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+1088
+</td>
+<td style="text-align:right;">
+1.68
+</td>
+<td style="text-align:right;">
+7
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coo_iso
+</td>
+<td style="text-align:right;">
+IRN
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+1079
+</td>
+<td style="text-align:right;">
+1.66
+</td>
+<td style="text-align:right;">
+8
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coo_iso
+</td>
+<td style="text-align:right;">
+XXA
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+1075
+</td>
+<td style="text-align:right;">
+1.66
+</td>
+<td style="text-align:right;">
+9
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coo_iso
+</td>
+<td style="text-align:right;">
+ETH
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+1066
+</td>
+<td style="text-align:right;">
+1.64
+</td>
+<td style="text-align:right;">
+10
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coa_name
+</td>
+<td style="text-align:right;">
+United States of America
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+2305
+</td>
+<td style="text-align:right;">
+3.56
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coa_name
+</td>
+<td style="text-align:right;">
+Canada
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+2212
+</td>
+<td style="text-align:right;">
+3.41
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coa_name
+</td>
+<td style="text-align:right;">
+Germany
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+1931
+</td>
+<td style="text-align:right;">
+2.98
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coa_name
+</td>
+<td style="text-align:right;">
+United Kingdom of Great Britain and Northern Ireland
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+1778
+</td>
+<td style="text-align:right;">
+2.74
+</td>
+<td style="text-align:right;">
+4
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coa_name
+</td>
+<td style="text-align:right;">
+France
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+1593
+</td>
+<td style="text-align:right;">
+2.46
+</td>
+<td style="text-align:right;">
+5
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coa_name
+</td>
+<td style="text-align:right;">
+Sweden
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+1546
+</td>
+<td style="text-align:right;">
+2.39
+</td>
+<td style="text-align:right;">
+6
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coa_name
+</td>
+<td style="text-align:right;">
+Australia
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+1545
+</td>
+<td style="text-align:right;">
+2.38
+</td>
+<td style="text-align:right;">
+7
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coa_name
+</td>
+<td style="text-align:right;">
+Switzerland
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+1397
+</td>
+<td style="text-align:right;">
+2.16
+</td>
+<td style="text-align:right;">
+8
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coa_name
+</td>
+<td style="text-align:right;">
+Italy
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+1375
+</td>
+<td style="text-align:right;">
+2.12
+</td>
+<td style="text-align:right;">
+9
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coa_name
+</td>
+<td style="text-align:right;">
+Belgium
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+1374
+</td>
+<td style="text-align:right;">
+2.12
+</td>
+<td style="text-align:right;">
+10
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coa
+</td>
+<td style="text-align:right;">
+USA
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+2305
+</td>
+<td style="text-align:right;">
+3.56
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coa
+</td>
+<td style="text-align:right;">
+CAN
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+2212
+</td>
+<td style="text-align:right;">
+3.41
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coa
+</td>
+<td style="text-align:right;">
+GFR
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+1931
+</td>
+<td style="text-align:right;">
+2.98
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coa
+</td>
+<td style="text-align:right;">
+GBR
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+1778
+</td>
+<td style="text-align:right;">
+2.74
+</td>
+<td style="text-align:right;">
+4
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coa
+</td>
+<td style="text-align:right;">
+FRA
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+1593
+</td>
+<td style="text-align:right;">
+2.46
+</td>
+<td style="text-align:right;">
+5
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coa
+</td>
+<td style="text-align:right;">
+SWE
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+1546
+</td>
+<td style="text-align:right;">
+2.39
+</td>
+<td style="text-align:right;">
+6
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coa
+</td>
+<td style="text-align:right;">
+AUL
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+1545
+</td>
+<td style="text-align:right;">
+2.38
+</td>
+<td style="text-align:right;">
+7
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coa
+</td>
+<td style="text-align:right;">
+SWI
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+1397
+</td>
+<td style="text-align:right;">
+2.16
+</td>
+<td style="text-align:right;">
+8
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coa
+</td>
+<td style="text-align:right;">
+ITA
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+1375
+</td>
+<td style="text-align:right;">
+2.12
+</td>
+<td style="text-align:right;">
+9
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coa
+</td>
+<td style="text-align:right;">
+BEL
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+1374
+</td>
+<td style="text-align:right;">
+2.12
+</td>
+<td style="text-align:right;">
+10
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coa_iso
+</td>
+<td style="text-align:right;">
+USA
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+2305
+</td>
+<td style="text-align:right;">
+3.56
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coa_iso
+</td>
+<td style="text-align:right;">
+CAN
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+2212
+</td>
+<td style="text-align:right;">
+3.41
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coa_iso
+</td>
+<td style="text-align:right;">
+DEU
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+1931
+</td>
+<td style="text-align:right;">
+2.98
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coa_iso
+</td>
+<td style="text-align:right;">
+GBR
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+1778
+</td>
+<td style="text-align:right;">
+2.74
+</td>
+<td style="text-align:right;">
+4
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coa_iso
+</td>
+<td style="text-align:right;">
+FRA
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+1593
+</td>
+<td style="text-align:right;">
+2.46
+</td>
+<td style="text-align:right;">
+5
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coa_iso
+</td>
+<td style="text-align:right;">
+SWE
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+1546
+</td>
+<td style="text-align:right;">
+2.39
+</td>
+<td style="text-align:right;">
+6
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coa_iso
+</td>
+<td style="text-align:right;">
+AUS
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+1545
+</td>
+<td style="text-align:right;">
+2.38
+</td>
+<td style="text-align:right;">
+7
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coa_iso
+</td>
+<td style="text-align:right;">
+CHE
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+1397
+</td>
+<td style="text-align:right;">
+2.16
+</td>
+<td style="text-align:right;">
+8
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coa_iso
+</td>
+<td style="text-align:right;">
+ITA
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+1375
+</td>
+<td style="text-align:right;">
+2.12
+</td>
+<td style="text-align:right;">
+9
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coa_iso
+</td>
+<td style="text-align:right;">
+BEL
+</td>
+<td style="text-align:right;">
+64809
+</td>
+<td style="text-align:right;">
+1374
+</td>
+<td style="text-align:right;">
+2.12
+</td>
+<td style="text-align:right;">
+10
+</td>
+</tr>
+</tbody>
+
+</table>
+</div>
+</div>
+<ul>
+<li><p><code>variables</code>: category names</p></li>
+<li><p><code>levels</code>: group names within categories</p></li>
+<li><p><code>N</code>: number of observation</p></li>
+<li><p><code>freq</code>: number of observation at group level / number of observation at category level</p></li>
+<li><p><code>ratio</code>: percentage of observation at group level / number of observation at category level</p></li>
+<li><p><code>rank</code>: rank of the occupancy ratio of levels (order in which the groups are in the category)</p></li>
+</ul>
+</section>
+<section id="produce-an-html-summary-of-the-dataset" class="level2">
+<h2 class="anchored" data-anchor-id="produce-an-html-summary-of-the-dataset">Produce an HTML summary of the dataset</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">diagnose_web_report</span>(dataset)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+
+processing file: diagnosis_temp.Rmd</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>1/67                         
+2/67 [setup]                 
+3/67                         
+4/67 [load_packages]         
+5/67                         
+6/67 [get-parameters]        
+7/67                         
+8/67 [unnamed-chunk-13]      
+9/67                         
+10/67 [diagose]               
+11/67                         
+12/67 [create-overview]       
+13/67                         
+14/67 [overview]              
+15/67                         
+16/67 [overview-datastructure]
+17/67                         
+18/67 [overview-pre]          
+19/67                         
+20/67 [overview-warnings]     
+21/67                         
+22/67 [warnings_summary]      
+23/67                         
+24/67 [warnings]              
+25/67                         
+26/67 [overview-variables]    
+27/67                         
+28/67 [variables]             </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>29/67                         
+30/67 [missing]               
+31/67                         
+32/67 [missing-list]          
+33/67                         
+34/67 [missing-data]          
+35/67                         
+36/67 [missing-visualization] 
+37/67                         
+38/67 [missing-viz2]          </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>39/67                         
+40/67 [unique]                
+41/67                         
+42/67 [unique-categorical]    
+43/67                         
+44/67 [unique-date-category]  
+45/67                         
+46/67 [unique-numerical]      
+47/67                         
+48/67 [unique-data-numeric]   
+49/67                         
+50/67 [outliers]              
+51/67                         
+52/67 [outliers-list]         </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>53/67                         
+54/67 [samples]               
+55/67                         
+56/67 [duplicated]            
+57/67                         
+58/67 [duplicated-list]       
+59/67                         
+60/67 [heades]                
+61/67                         
+62/67 [sample-head]           
+63/67                         
+64/67 [tails]                 
+65/67                         
+66/67 [sample-tail]           
+67/67                         </code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>output file: diagnosis_temp.knit.md</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>"C:/Program Files/RStudio/resources/app/bin/quarto/bin/tools/pandoc" +RTS -K512m -RTS diagnosis_temp.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output pandoc612c5b8419e2.html --lua-filter "C:\Users\ASUS\AppData\Local\R\win-library\4.3\rmarkdown\rmarkdown\lua\pagebreak.lua" --lua-filter "C:\Users\ASUS\AppData\Local\R\win-library\4.3\rmarkdown\rmarkdown\lua\latex-div.lua" --embed-resources --standalone --variable bs3=TRUE --section-divs --template "C:\Users\ASUS\AppData\Local\R\win-library\4.3\rmarkdown\rmd\h\default.html" --no-highlight --variable highlightjs=1 --variable theme=bootstrap --css "C:/Users/ASUS/AppData/Local/R/win-library/4.3/dlookr/resources/dlookr-bootstrap.css" --mathjax --variable "mathjax-url=https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" --include-in-header "C:\Users\ASUS\AppData\Local\Temp\Rtmp2HEwXZ\rmarkdown-str612c1842791b.html" --variable code_folding=show --variable code_menu=1 --include-in-header header_temp.html --include-after-body "C:\Users\ASUS\AppData\Local\R\win-library\4.3\dlookr\resources\footer.html" </code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Output created: C:\Users\ASUS\AppData\Local\Temp\Rtmp2HEwXZ/Diagnosis_Report.html</code></pre>
+</div>
+</div>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

@@ -5,6 +5,220 @@ format: html
 editor: visual
 ---
 
-```{r}
+# Diagnosing like a Data Doctor
 
+## Purpose:
+
+#### Exploring a novel data set and produce publication quality tables and reports 
+
+## Take-aways
+
+1.  Load and explore a data set with publication quality tables
+
+2.  Diagnose outliers and missing values in a data set
+
+3.  Prepare an HTML summary report showcasing properties of a data set
+
+## Required Setup
+
+Prepare the environment with required packages
+
+```{r}
+# Sets the number of significant figures to three -e.g, 1.333
+options(digits = 3)
+
+# Downloading required package for quick package loading
+if(!require(pacman))
+  installed.packages("pacman")
+#loading package
+pacman::p_load(dlookr, #Exploratory data analysis(EDA)
+               formattable, # HTML tables from R outputs
+               here, # Standardizes paths to data 
+               kableExtra, # Alternative to formattable 
+               knitr, # Needed to write HTML reports
+               missRanger, # To generate NA's 
+               tidyverse # Powerful data wrangling package suite like Pandas for python
+               )
+```
+
+## Load and Examine the Dataset 
+
+-   Load and view
+
+-   Examine columns and data types
+
+-   define box plots
+
+-   describe metadata
+
+We will be using Refugees R package,
+
+This package provides data from three major sources:
+
+-   Data from UNHCR\'s annual statistical activities dating back to 1951.
+
+-   Data from the United Nations Relief and Works Agency for Palestine Refugees in the Near East (UNRWA), specifically for registered Palestine refugees under UNRWA\'s mandate.
+
+-   Data from the Internal Displacement Monitoring Centre (IDMC) on people displaced within their country due to conflict or violence.
+
+The {refugees} package includes eight datasets. I will be working with `population` with data from 2010 to 2022.
+
+```{r}
+dataset <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-08-22/population.csv')
+populations2010 <- filter(dataset, year >= 2010)
+write_csv(populations2010, "population.csv")
+
+
+```
+
+```{r}
+dataset |> 
+  head() |> 
+   formattable()
+
+dataset |> 
+  tail() |> 
+   formattable()
+```
+
+## Diagnosing the data
+
+```{r}
+dataset |> 
+  diagnose() |>
+  formattable()
+```
+
+-   `variables` : name of each variable in the column
+
+-   `types` : data type of each variable
+
+-   `missing_count` : number of missing values
+
+-   `missing_percent` : percentage of missing values
+
+-   `unique_count`: number of unique values
+
+-   `unique_rate` : rate of unique values - unique_count / Number of observations
+
+## Summary Statistics of the Data
+
+### Numerical Variables
+
+```{r}
+# Summary statistics of the numerical column
+
+dataset |>
+  diagnose_numeric() |>
+  formattable()
+```
+
+-   `min`: minimum value
+
+-   `Q1`: 1/4 quartile, 25th percentile
+
+-   `mean`: arithmetic mean (average value)
+
+-   `median`: median, 50th percentile
+
+-   `Q3`: 3/4 quartile, 75th percentile
+
+-   `max`: maximum value
+
+-   `zero`: number of observations with the value 0
+
+-   `minus`: number of observations with negative numbers
+
+-   `outlier`: number of outliers
+
+## Outliers
+
+Values outside of 1.5 \* IQR
+
+There are several numerical variables that have outliers above, filtering the outlier lets see how the data look like without them.
+
+-   Create a table with columns containing outliers
+
+-   Plot outliers in a box plot and histogram
+
+```{r}
+# Table showing outliers
+
+diagnose_outlier(dataset) |> 
+  filter(outliers_ratio>0) |>
+  formattable()
+```
+
+-   `outliers_cnt`: number of outliers
+
+-   `outliers_ratio`: ratio of outliers over all values
+
+-   `outliers_mean`: arithmetic mean (average value) of outlier values
+
+-   `with_mean`: arithmetic mean of all values **including** outliers
+
+-   `without_mean`: arithmetic mean of all values **excluding** outliers
+
+```{r}
+# Plotting outliers with selected columns
+
+dataset["refugees"] |> plot_outlier()
+```
+
+```{r}
+# For plotiing outliers for all columns 
+dataset |> plot_outlier()
+```
+
+## Missing Values (NA's)
+
+-   Table showing the extent of NA's in columns containing them
+
+-   Plot showing the frequency of missing values
+
+```{r}
+# Create the NA table 
+
+dataset |> 
+  generateNA(p=0.3) |>
+  plot_na_pareto(only_na = TRUE,plot = FALSE)|>
+  formattable()
+```
+
+```{r}
+# Plot the intersect of the columns with the most missing values
+# This means that some combinations of columns have missing values in the same row
+
+dataset |> 
+  generateNA(p=0.3) |>
+  select (refugees,returned_refugees,stateless,returned_idps) |>
+  plot_na_intersect(only_na = TRUE)
+```
+
+## Categorical Variables
+
+```{r}
+# Diagnosing the categorical variables
+
+dataset |>
+  diagnose_category() |>
+  formattable()
+```
+
+-   `variables`: category names
+
+-   `levels`: group names within categories
+
+-   `N`: number of observation
+
+-   `freq`: number of observation at group level / number of observation at category level
+
+-   `ratio`: percentage of observation at group level / number of observation at category level
+
+-   `rank`: rank of the occupancy ratio of levels (order in which the groups are in the category)
+
+## Produce an HTML summary of the dataset
+
+```{r}
+diagnose_web_report(dataset)
 ```

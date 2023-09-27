@@ -4,3 +4,255 @@ author: "VISHAL BHASHYAAM"
 format: html
 editor: visual
 ---
+
+# Exploring like a Data Adventure
+
+## Purpose of this chapter
+
+### Exploring the normality of numerical columns in a novel data set and producing publication quality tables and reports
+
+## Take-aways
+
+1.  Using summary statistics to better understand individual columns in data sets.
+
+2.  Assessing data normality in numerical columns.
+
+3.  Producing a publishable HTML with summary statistics and normality tests for columns within a data set.
+
+## Required Setup
+
+Prepare the environment with required packages
+
+```{r}
+# Sets the number of significant figures to three -e.g, 1.333
+options(digits = 3)
+
+# Downloading required package for quick package loading
+if(!require(pacman))
+  installed.packages("pacman")
+#loading package
+pacman::p_load(dlookr, #Exploratory data analysis(EDA)
+               formattable, # HTML tables from R outputs
+               here, # Standardizes paths to data 
+               kableExtra, # Alternative to formattable 
+               knitr, # Needed to write HTML reports
+               tidyverse # Powerful data wrangling package suite like Pandas for python
+               )
+```
+
+## ̥Load and Examine the Dataset
+
+We will be using Refugees R package,
+
+This package provides data from three major sources:
+
+-   Data from UNHCR's annual statistical activities dating back to 1951.
+
+-   Data from the United Nations Relief and Works Agency for Palestine Refugees in the Near East (UNRWA), specifically for registered Palestine refugees under UNRWA's mandate.
+
+-   Data from the Internal Displacement Monitoring Centre (IDMC) on people displaced within their country due to conflict or violence.
+
+The {refugees} package includes eight datasets. I will be working with `population` with data from 2010 to 2022.
+
+```{r}
+dataset <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-08-22/population.csv')
+populations2010 <- filter(dataset, year >= 2010)
+write_csv(populations2010, "population.csv")
+
+```
+
+```{r}
+# What does the data look like
+dataset |> 
+  head() |> 
+   formattable()
+
+dataset |> 
+  tail() |> 
+   formattable()
+```
+
+## Diagnose your Data
+
+```{r}
+# Porperties of Data 
+dataset |> 
+  diagnose() |>
+  formattable()
+```
+
+-   `variables` : name of each variable in the column
+
+-   `types` : data type of each variable
+
+-   `missing_count` : number of missing values
+
+-   `missing_percent` : percentage of missing values
+
+-   `unique_count`: number of unique values
+
+-   `unique_rate` : rate of unique values - unique_count / Number of observations
+
+## Box Plot
+
+## Skewness:
+
+### Note:
+
+-   Skewness is designed for distribution with one peak (Unimodal), it is meaningless for distribution with multiple peaks (multimodal).
+
+-   Can't make assumptions/conclusions about the locations of mean and median based on the skewness sign.
+
+## Kurtosis
+
+### Note:
+
+-   Kurtosis may work fine for distribution with one peak (Unimodal), it is meaningless for distribution with multiple peaks ( Multimodal).
+
+-   The classic definition of kurtosis is not robust: it could be easily spoiled by extreme outliers.
+
+## Describe your continuous data 
+
+```{r}
+# Summary statistics
+
+dataset |>
+  describe() |>
+  formattable()
+```
+
+-   `describes_variables`: name of the column being described
+
+-   `n`: number of observations excluding missing values
+
+-   `na`: number of missing values
+
+-   `mean`: arithmetic average
+
+-   `sd`: standard deviation
+
+-   `se_mean`: standard error mean. sd/sqrt(n)
+
+-   `IQR`: interquartile range (Q3-Q1)
+
+-   `skewness`: skewness
+
+-   `kurtosis`: kurtosis
+
+-   `p25`: Q1. 25% percentile
+
+-   `p50`: median. 50% percentile
+
+-   `p75`: Q3. 75% percentile
+
+-   `p01`, `p05`, `p10`, `p20`, `p30`: 1%, 5%, 20%, 30% percentiles
+
+-   `p40`, `p60`, `p70`, `p80`: 40%, 60%, 70%, 80% percentiles
+
+-   `p90`, `p95`, `p99`, `p100`: 90%, 95%, 99%, 100% percentiles
+
+## Describe the continuous data  : Refined
+
+Selecting the required values for summary statistics
+
+```{r}
+# summary statistics, selecting the desired values 
+
+dataset  |> 
+  describe() |>
+  select(described_variables, n, na, mean,sd, se_mean, IQR,skewness,kurtosis,p25,p50,p75) |>
+  
+  formattable()
+
+```
+
+## Describe categorical variables
+
+```{r}
+# diagnosis of categorical variables 
+
+dataset |>
+  diagnose_category() |>
+  formattable()
+```
+
+-   `variables`: category names
+
+-   `levels`: group names within categories
+
+-   `N`: number of observation
+
+-   `freq`: number of observation at group level / number of observation at category level
+
+-   `ratio`: percentage of observation at group level / number of observation at category level
+
+-   `rank`: rank of the occupancy ratio of levels (order in which the groups are in the category)
+
+## Group Descriptive Statistics
+
+```{r}
+dataset |>
+  group_by(coo) |>
+  describe() |>
+  select(described_variables, n, na, mean,sd, se_mean, IQR,skewness,kurtosis,p25,p50,p75) |>
+  
+  formattable()
+```
+
+## Testing Normality
+
+-   Shapiro-Wilk test & Q-Q plots
+
+-   Testing overall normality of two columns
+
+-   testing normality of groups
+
+## Normality of columns
+
+### Shapiro-Wilk Test
+
+Shapiro-Wilk test looks at whether a target distribution is sample form a normal distribution
+
+```{r}
+dataset |> 
+  normality() |>
+  formattable()
+```
+
+## Q-Q Plots
+
+Plots of the quartiles of a target data set and plot it against predicted quartiles from a noraml distribution
+
+```{r}
+dataset |> 
+  plot_normality()
+
+```
+
+## Normality within groups 
+
+Looking within Coo at the subgroup normality
+
+```{r}
+dataset |> 
+  group_by(coo) |>
+  select(refugees,asylum_seekers,returned_refugees,coo) |>
+  normality() |>
+  formattable()
+```
+
+## Q-Q Plots 
+
+```{r}
+dataset |> 
+  group_by(coo) |>
+   select(refugees,asylum_seekers,returned_refugees,coo) |>
+  plot_normality() 
+ 
+```
+
+## Producing an HTML Normality Summary 
+
+```{r}
+eda_web_report(dataset,author = "VISHAL BHASHYAAM",subtitle = "Refugee dataset",output_file = "Diagnose_Report_hw-02-02")
+```

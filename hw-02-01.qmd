@@ -9,7 +9,7 @@ editor: visual
 
 ## Purpose:
 
-#### Exploring a novel data set and produce publication quality tables and reports 
+#### Exploring a novel data set and produce publication quality tables and reports
 
 ## Take-aways
 
@@ -41,7 +41,7 @@ pacman::p_load(dlookr, #Exploratory data analysis(EDA)
                )
 ```
 
-## Load and Examine the Dataset 
+## Load and Examine the Dataset
 
 -   Load and view
 
@@ -55,9 +55,9 @@ We will be using Refugees R package,
 
 This package provides data from three major sources:
 
--   Data from UNHCR\'s annual statistical activities dating back to 1951.
+-   Data from UNHCR's annual statistical activities dating back to 1951.
 
--   Data from the United Nations Relief and Works Agency for Palestine Refugees in the Near East (UNRWA), specifically for registered Palestine refugees under UNRWA\'s mandate.
+-   Data from the United Nations Relief and Works Agency for Palestine Refugees in the Near East (UNRWA), specifically for registered Palestine refugees under UNRWA's mandate.
 
 -   Data from the Internal Displacement Monitoring Centre (IDMC) on people displaced within their country due to conflict or violence.
 
@@ -72,6 +72,7 @@ write_csv(populations2010, "population.csv")
 ```
 
 ```{r}
+# What does the data look like
 dataset |> 
   head() |> 
    formattable()

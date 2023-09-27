@@ -220,5 +220,5 @@ dataset |>
 ## Produce an HTML summary of the dataset
 
 ```{r}
-diagnose_web_report(dataset)
+diagnose_web_report(dataset,author = "VISHAL BHASHYAAM",subtitle = "Refugee dataset",output_file = "Diagnose_Report_hw-02-01")
 ```

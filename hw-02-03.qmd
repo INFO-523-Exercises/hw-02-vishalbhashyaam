@@ -1,0 +1,86 @@
+---
+title: "Transforming like a Data Transformer"
+author: "VISHAL BHASHYAAM"
+format: html
+editor: visual
+---
+
+# Transforming like a Data... Transformer
+
+## Purpose of this chapter
+
+### Using data transformation to correct non-normality in numerical data
+
+## Take-aways
+
+1.  Load and explore a data set with publication quality tables
+
+2.  Quickly diagnose non-normality in data
+
+3.  Data transformation
+
+4.  Prepare an HTML summary report showcasing data transformations
+
+## Required Setup
+
+Prepare the environment with required packages
+
+```{r}
+# Sets the number of significant figures to three -e.g, 1.333
+options(digits = 3)
+
+# Downloading required package for quick package loading
+if(!require(pacman))
+  installed.packages("pacman")
+#loading package
+pacman::p_load(dlookr, #Exploratory data analysis(EDA)
+               formattable, # HTML tables from R outputs
+               here, # Standardizes paths to data 
+               kableExtra, # Alternative to formattable 
+               knitr, # Needed to write HTML reports
+               missRanger, # To generate NA's 
+               tidyverse # Powerful data wrangling package suite like Pandas for python
+               )
+```
+
+## Load and Examine the dataset
+
+-   Load date and view
+
+-   Examine columns and data types
+
+-   Examine data normality
+
+-   Describe properties of data
+
+```{r}
+# Loading the data 
+dataset <- dataset <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-08-22/population.csv')
+populations2010 <- filter(dataset, year >= 2010)
+write_csv(populations2010, "population.csv")
+```
+
+```{r}
+# adding a categorical column or group
+
+(x=dataset["returned_refugees"] |>
+  max())
+(y=dataset["returned_refugees"] |>
+  min())
+
+(mean_refugees = (x+y)/2)
+
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```

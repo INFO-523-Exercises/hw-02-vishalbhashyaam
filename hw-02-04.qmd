@@ -4,3 +4,397 @@ author: "VISHAL BHASHYAAM"
 format: html
 editor: visual
 ---
+
+# Imputing like a Data Scientist
+
+## Purpose of this chapter
+
+Exploring, visualizing, and imputing outliers and missing values (NAs) in a novel data set and produce publication quality graphs and tables
+
+## Take-aways
+
+1.  Load and explore a data set with publication quality tables
+
+2.  Thoroughly diagnose outliers and missing values
+
+3.  Impute outliers and missing values
+
+## Required Setup
+
+We first need to prepare our environment with the necessary packages and set a global theme for publishable plots in `ggplot()`
+
+```{r}
+# Sets the number of significant figures to two - e.g., 0.01
+options(digits = 3)
+
+# Required package for quick package downloading and loading 
+if (!require(pacman))
+  install.packages("pacman")
+
+pacman::p_load( 
+               cluster, # K cluster analyses
+               dlookr, # Exploratory data analysis
+               formattable, # HTML tables from R outputs
+               ggfortify, # Plotting tools for stats
+               ggpubr, # Publishable ggplots
+               here, # Standardizes paths to data
+               kableExtra, # Alternative to formattable
+               knitr, # Needed to write HTML reports
+               missRanger, # To generate NAs
+               plotly, # Visualization package
+               rattle, # Decision tree visualization
+               rpart, # rpart algorithm
+               tidyverse, # Powerful data wrangling package suite
+               visdat) # Another EDA visualization package
+
+# Setting global ggplot() theme
+# Theme pub_clean() from the ggpubr package with base text size = 16
+theme_set(theme_pubclean(base_size = 16)) 
+# All axes titles to their respective far right sides
+theme_update(axis.title = element_text(hjust = 1))
+# Remove axes ticks
+theme_update(axis.ticks = element_blank()) 
+# Remove legend key
+theme_update(legend.key = element_blank())
+```
+
+## Load and Examine the Data set
+
+```{r}
+# Loading the data 
+dataset <- dataset <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-08-22/population.csv')
+populations2010 <- filter(dataset, year >= 2010)
+write_csv(populations2010, "population.csv")
+
+
+(x=dataset["asylum_seekers"] |>
+  max())
+(y=dataset["asylum_seekers"] |>
+  min())
+
+(mean_asylum_seekers = (x+y)/2)
+# Adding a categorical group
+dataset <- dataset |>
+mutate(rate_asylum_seekers = ifelse(dataset["asylum_seekers"] >mean_asylum_seekers, "High",ifelse(dataset["asylum_seekers"]<= mean_asylum_seekers & dataset["asylum_seekers"]> 0,"low","none")),
+       rate_asylum_seekers=fct_rev(rate_asylum_seekers)) # Reverse factor levels
+# The top inforamtion in the dataset
+dataset |>
+  head() |>
+  formattable()
+```
+
+## Diagnose your Data
+
+```{r}
+# Properties of the data 
+```
+
+```{r}
+dataset |> 
+  diagnose() |>
+  formattable()
+```
+
+-   `variables`: name of each variable
+
+-   `types`: data type of each variable
+
+-   `missing_count`: number of missing values
+
+-   `missing_percent`: percentage of missing values
+
+-   `unique_count`: number of unique values
+
+-   `unique_rate`: rate of unique value - unique_count / number of observations
+
+## Diagnose Outliers
+
+These are several numerical variables that have outliers above, let's see how the data looks with and without them.
+
+-   Create a table with columns containing outliers
+
+-   Plot outliers in a box plot and histogram
+
+```{r}
+# Table showing outliers
+
+dataset |>
+  diagnose_outlier() |> 
+  filter(outliers_ratio>0) |>
+  mutate(rate=outliers_mean / with_mean) |>
+  arrange (desc(rate)) |>
+  select(-outliers_cnt) |>
+  formattable()
+```
+
+```{r}
+# Boxplots and histograms of data with and without outliers 
+dataset |> 
+  select(find_outliers(dataset)) |>
+  plot_outlier()
+```
+
+## Basic Exploration of Missing Values (NAs)
+
+```{r}
+# Randomly generate NA's for 30
+na.dataset <- dataset |> 
+  generateNA(p=0.3)
+
+# First six rows 
+na.dataset |>
+  head() |>
+  formattable()
+```
+
+```{r}
+# Create the NA Table 
+na.dataset |>
+  plot_na_pareto(only_na = TRUE, plot = FALSE) |>
+  formattable() # Publishable Table 
+```
+
+-   Plots showing frequency of missing values
+
+```{r}
+# Plot the intersect of the columns with missing values
+# This plot visualizes the table above
+na.dataset |> 
+  plot_na_pareto(only_na = TRUE)
+```
+
+## Advanced Exploration of Missing Values (NAs)
+
+-   Intersect plot that shows, for every combination of columns relevant, how many missing values are common
+
+-   Orange boxes are the columns in question
+
+-   x axis (top green bar plots) show the number of missing values in that column
+
+-   y axis (right green bars) show the number of missing values in the columns in orange blocks
+
+```{r}
+# Plot the intersect of the 5 columns with the most missing values 
+# This means that some combinations of columns have missing values in the same row
+
+na.dataset |>
+  select(refugees,returned_refugees,asylum_seekers) |>
+  plot_na_intersect(only_na=TRUE)
+```
+
+### **Determining if NA Observations are the Same**
+
+-   Missing values can be the same observation across several columns, this is not shown above
+
+-   The visdat package can solve this with the `vis_miss()` function which shows the rows with missing values through `ggplotly()`
+
+-   Here we can see ALL columns with NAs, and w can zoom into individual rows (interactive plot)
+
+```{r,error=TRUE}
+# Interactive plotly() plot of all NA values to examine every row 
+# Taking a long time to compute so commenting it out
+''' na.dataset |>
+   select(refugees,asylum_seekers,returned_refugees) |>
+   vis_miss() |>
+   ggplotly() '''
+  
+```
+
+## Impute Outliers and NAs
+
+Removing outliers and NAs is tricky.
+
+The principle goal for all imputation is to find the method that does not change the distribution too much (or oddly).
+
+### Classifying Outliers
+
+Before imputing outliers, we want diagnose whether it's natural outliers or not. We will be looking at "asylum_seekers" for example across rate_asylum_seekers, because there are outliers and several NAs, which we will impute below.
+
+```{r}
+# Box Plot 
+dataset %>% # Set the simulated normal data as a data frame
+  ggplot(aes(x= asylum_seekers, y=rate_asylum_seekers, fill= rate_asylum_seekers)) + # Create a ggplot 
+  geom_boxplot(width=0.5, outlier.size = 2, outlier.alpha = 0.5)+ 
+  xlab("Asylum seeker")+ # Label for xaxis
+  ylab("rate of asylum seekers")+ # Label for yaxis
+
+  theme (legend.position ="none")
+  
+```
+
+We remove outliers using `imputate_outlier()` and replace them with values that are estimates based on the existing data
+
+-   `mean`: arithmetic mean
+
+-   `median`: median
+
+-   `mode`: mode
+
+-   `capping`: Impute the upper outliers with 95 percentile, and impute the bottom outliers with 5 percentile - aka Winsorizing
+
+## Mean imputation
+
+The mean of the observed values for each variable is computed and the outliers for that variable are imputed by this mean.
+
+```{r}
+# Raw summary, output suppressed
+mean_out_imp_asylum <- dataset |>
+  select(asylum_seekers) |>
+  filter(asylum_seekers < 100) |>
+  imputate_outlier(asylum_seekers, method = "mean")
+
+# Output showing the summary statistics of our imputation
+mean_out_imp_asylum |>
+  summary() 
+```
+
+```{r}
+# Visualizing of the mean imputation
+mean_out_imp_asylum |>
+  plot()
+```
+
+## Median Imputation
+
+The median of the observed values of each variable is computed and the outliers for that variable are imputed by this median
+
+```{r}
+
+# Raw summary, output suppressed
+med_out_imp_asylum <- dataset |>
+  select(asylum_seekers) |>
+  filter(asylum_seekers < 100) |>
+  imputate_outlier(asylum_seekers, method = "mean")
+
+# Output showing the summary statistics of our imputation
+med_out_imp_asylum |>
+  summary() 
+```
+
+```{r}
+# Vizualization of median imputation
+med_out_imp_asylum |>
+  plot()
+```
+
+## Mode Imputation
+
+The mode of the observed values of each variable is computed and the outliers for that variable are imputed by this mode
+
+```{r}
+# Raw summary, output suppressed 
+mode_out_imp_asylum <- dataset |>
+  select(asylum_seekers) |>
+  filter(asylum_seekers < 100) |>
+  imputate_outlier(asylum_seekers, method="mode")
+  
+#Output showing summary stats of the imputation
+mode_out_imp_asylum |>
+  summary()
+  
+```
+
+```{r}
+# Visualization of the mode imputation
+mode_out_imp_asylum |>
+  plot()
+```
+
+### Capping Imputation (aka Winsorizing)
+
+The Percentile Capping is a method of Imputing the outlier values by replacing those observations outside the lower limit with the value of 5th percentile and those that lie above the upper limit, with the value of 95th percentile of the same dataset.
+
+```{r}
+# Raw summary, output suppressed
+cap_out_imp_asylum<- dataset |>
+  select(asylum_seekers) |>
+  filter(asylum_seekers < 600) |>
+  imputate_outlier(asylum_seekers, method = "capping")
+
+# Output showing the summary statistics of our imputation
+cap_out_imp_asylum |>
+  summary()
+```
+
+```{r}
+# Visualization  of the capping imputation
+cap_out_imp_asylum |>
+  plot()
+```
+
+## Imputing NA's
+
+1.  `knn`: K-nearest neighbors (KNN)
+
+2.  `rpart`: Recursive Partitioning and Regression Trees (rpart)
+
+3.  `mice`: Multivariate Imputation by Chained Equations (MICE)
+
+Since our normal `dataset` has no NA values, we will use the `na.dataset` we created earlier.
+
+## K-Nearest-Neighbor(KNN) Imputation
+
+```{r}
+# KNN plot of the dataset without categories
+dataset |>
+  select(refugees,returned_refugees) |>
+  clara(2) |>
+autoplot() + scale_color_discrete()
+  
+
+```
+
+```{r,error=TRUE}
+# There is no missing values in this dataset so knn for na Doesnt work
+# Raw summary, output suppressed
+''' knn_na_imp_asylum <- na.dataset |>
+    filter(coo_name == typeof(character()))|>
+  imputate_na(asylum_seekers,method= "knn")
+# Plot showing the results of the imputation
+knn_na_imp_asylum |>
+  plot() ''' 
+#
+```
+
+### **Recursive Partitioning and Regression Trees (rpart)**
+
+rpart is a decision tree machine learning algorithm that builds classification or regression models through a two stage process, which can be thought of as binary trees. The algorithm splits the data into subsets, which move down other branches of the tree until a termination criteria is reached.
+
+For example, if we are missing a value for `rate_asylum_seekers` a first decision could be whether the associated `asylum_seekers` is within a series of yes or no criteria
+
+```{r}
+# Raw summary, output suppressed
+rpart_na_imp_asylum <- na.dataset |>
+  filter(coo_name == typeof(character()))|>
+  imputate_na(asylum_seekers, method = "rpart")
+
+# Plot showing the results of our imputation
+rpart_na_imp_asylum |>
+  plot()
+
+
+```
+
+### **Multivariate Imputation by Chained Equations (MICE)**
+
+MICE is an algorithm that fills missing values multiple times, hence dealing with uncertainty better than other methods. This approach creates multiple copies of the data that can then be analyzed and then pooled into a single dataset.
+
+```{r}
+set.seed(123)
+#Raw summary, output suppressed
+mice_na_imp_refugees <- na.dataset |>
+  imputate_na(refugees, method = "mice", seed = 123)
+```
+
+```{r}
+# Plot for showing results of imputation
+
+mice_na_imp_refugees |>
+  plot()
+```
+
+## Produce an HTML Transformation Summary
+
+```{r}
+transformation_web_report(dataset,author = "VISHAL BHASHYAAM",subtitle = "Refugee dataset",output_file = "Diagnose_Report_hw-02-04",output_dir = ".")
+```

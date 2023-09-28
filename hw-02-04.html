@@ -1,0 +1,2679 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="VISHAL BHASHYAAM">
+
+<title>Imputing like a Data Scientist</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="hw-02-04_files/libs/clipboard/clipboard.min.js"></script>
+<script src="hw-02-04_files/libs/quarto-html/quarto.js"></script>
+<script src="hw-02-04_files/libs/quarto-html/popper.min.js"></script>
+<script src="hw-02-04_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="hw-02-04_files/libs/quarto-html/anchor.min.js"></script>
+<link href="hw-02-04_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="hw-02-04_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="hw-02-04_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="hw-02-04_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="hw-02-04_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body class="fullcontent">
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article">
+
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Imputing like a Data Scientist</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>VISHAL BHASHYAAM </p>
+          </div>
+  </div>
+    
+  
+    
+  </div>
+  
+
+</header>
+
+<section id="imputing-like-a-data-scientist" class="level1">
+<h1>Imputing like a Data Scientist</h1>
+<section id="purpose-of-this-chapter" class="level2">
+<h2 class="anchored" data-anchor-id="purpose-of-this-chapter">Purpose of this chapter</h2>
+<p>Exploring, visualizing, and imputing outliers and missing values (NAs) in a novel data set and produce publication quality graphs and tables</p>
+</section>
+<section id="take-aways" class="level2">
+<h2 class="anchored" data-anchor-id="take-aways">Take-aways</h2>
+<ol type="1">
+<li><p>Load and explore a data set with publication quality tables</p></li>
+<li><p>Thoroughly diagnose outliers and missing values</p></li>
+<li><p>Impute outliers and missing values</p></li>
+</ol>
+</section>
+<section id="required-setup" class="level2">
+<h2 class="anchored" data-anchor-id="required-setup">Required Setup</h2>
+<p>We first need to prepare our environment with the necessary packages and set a global theme for publishable plots in <code>ggplot()</code></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Sets the number of significant figures to two - e.g., 0.01</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">digits =</span> <span class="dv">3</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Required package for quick package downloading and loading </span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="sc">!</span><span class="fu">require</span>(pacman))</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">install.packages</span>(<span class="st">"pacman"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: pacman</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>( </span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>               cluster, <span class="co"># K cluster analyses</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>               dlookr, <span class="co"># Exploratory data analysis</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>               formattable, <span class="co"># HTML tables from R outputs</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>               ggfortify, <span class="co"># Plotting tools for stats</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>               ggpubr, <span class="co"># Publishable ggplots</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>               here, <span class="co"># Standardizes paths to data</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>               kableExtra, <span class="co"># Alternative to formattable</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>               knitr, <span class="co"># Needed to write HTML reports</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>               missRanger, <span class="co"># To generate NAs</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>               plotly, <span class="co"># Visualization package</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>               rattle, <span class="co"># Decision tree visualization</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>               rpart, <span class="co"># rpart algorithm</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>               tidyverse, <span class="co"># Powerful data wrangling package suite</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>               visdat) <span class="co"># Another EDA visualization package</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a><span class="co"># Setting global ggplot() theme</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a><span class="co"># Theme pub_clean() from the ggpubr package with base text size = 16</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a><span class="fu">theme_set</span>(<span class="fu">theme_pubclean</span>(<span class="at">base_size =</span> <span class="dv">16</span>)) </span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a><span class="co"># All axes titles to their respective far right sides</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a><span class="fu">theme_update</span>(<span class="at">axis.title =</span> <span class="fu">element_text</span>(<span class="at">hjust =</span> <span class="dv">1</span>))</span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove axes ticks</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a><span class="fu">theme_update</span>(<span class="at">axis.ticks =</span> <span class="fu">element_blank</span>()) </span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove legend key</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a><span class="fu">theme_update</span>(<span class="at">legend.key =</span> <span class="fu">element_blank</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="load-and-examine-the-data-set" class="level2">
+<h2 class="anchored" data-anchor-id="load-and-examine-the-data-set">Load and Examine the Data set</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Loading the data </span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>dataset <span class="ot">&lt;-</span> dataset <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_csv</span>(<span class="st">'https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-08-22/population.csv'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 64809 Columns: 16
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr  (6): coo_name, coo, coo_iso, coa_name, coa, coa_iso
+dbl (10): year, refugees, asylum_seekers, returned_refugees, idps, returned_...
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>populations2010 <span class="ot">&lt;-</span> <span class="fu">filter</span>(dataset, year <span class="sc">&gt;=</span> <span class="dv">2010</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(populations2010, <span class="st">"population.csv"</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>(<span class="at">x=</span>dataset[<span class="st">"asylum_seekers"</span>] <span class="sc">|&gt;</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">max</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 940668</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>(<span class="at">y=</span>dataset[<span class="st">"asylum_seekers"</span>] <span class="sc">|&gt;</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">min</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>(<span class="at">mean_asylum_seekers =</span> (x<span class="sc">+</span>y)<span class="sc">/</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 470334</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Adding a categorical group</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>dataset <span class="ot">&lt;-</span> dataset <span class="sc">|&gt;</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a><span class="fu">mutate</span>(<span class="at">rate_asylum_seekers =</span> <span class="fu">ifelse</span>(dataset[<span class="st">"asylum_seekers"</span>] <span class="sc">&gt;</span>mean_asylum_seekers, <span class="st">"High"</span>,<span class="fu">ifelse</span>(dataset[<span class="st">"asylum_seekers"</span>]<span class="sc">&lt;=</span> mean_asylum_seekers <span class="sc">&amp;</span> dataset[<span class="st">"asylum_seekers"</span>]<span class="sc">&gt;</span> <span class="dv">0</span>,<span class="st">"low"</span>,<span class="st">"none"</span>)),</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>       <span class="at">rate_asylum_seekers=</span><span class="fu">fct_rev</span>(rate_asylum_seekers)) <span class="co"># Reverse factor levels</span></span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a><span class="co"># The top inforamtion in the dataset</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>dataset <span class="sc">|&gt;</span></span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>() <span class="sc">|&gt;</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">formattable</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<table class="table table-condensed">
+<thead>
+<tr>
+<th style="text-align:right;">
+year
+</th>
+<th style="text-align:right;">
+coo_name
+</th>
+<th style="text-align:right;">
+coo
+</th>
+<th style="text-align:right;">
+coo_iso
+</th>
+<th style="text-align:right;">
+coa_name
+</th>
+<th style="text-align:right;">
+coa
+</th>
+<th style="text-align:right;">
+coa_iso
+</th>
+<th style="text-align:right;">
+refugees
+</th>
+<th style="text-align:right;">
+asylum_seekers
+</th>
+<th style="text-align:right;">
+returned_refugees
+</th>
+<th style="text-align:right;">
+idps
+</th>
+<th style="text-align:right;">
+returned_idps
+</th>
+<th style="text-align:right;">
+stateless
+</th>
+<th style="text-align:right;">
+ooc
+</th>
+<th style="text-align:right;">
+oip
+</th>
+<th style="text-align:right;">
+hst
+</th>
+<th style="text-align:right;">
+rate_asylum_seekers
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+2010
+</td>
+<td style="text-align:right;">
+Afghanistan
+</td>
+<td style="text-align:right;">
+AFG
+</td>
+<td style="text-align:right;">
+AFG
+</td>
+<td style="text-align:right;">
+Afghanistan
+</td>
+<td style="text-align:right;">
+AFG
+</td>
+<td style="text-align:right;">
+AFG
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+351907
+</td>
+<td style="text-align:right;">
+3366
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+838250
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+none
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2010
+</td>
+<td style="text-align:right;">
+Iran (Islamic Rep.&nbsp;of)
+</td>
+<td style="text-align:right;">
+IRN
+</td>
+<td style="text-align:right;">
+IRN
+</td>
+<td style="text-align:right;">
+Afghanistan
+</td>
+<td style="text-align:right;">
+AFG
+</td>
+<td style="text-align:right;">
+AFG
+</td>
+<td style="text-align:right;">
+30
+</td>
+<td style="text-align:right;">
+21
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+low
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2010
+</td>
+<td style="text-align:right;">
+Iraq
+</td>
+<td style="text-align:right;">
+IRQ
+</td>
+<td style="text-align:right;">
+IRQ
+</td>
+<td style="text-align:right;">
+Afghanistan
+</td>
+<td style="text-align:right;">
+AFG
+</td>
+<td style="text-align:right;">
+AFG
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+none
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2010
+</td>
+<td style="text-align:right;">
+Pakistan
+</td>
+<td style="text-align:right;">
+PAK
+</td>
+<td style="text-align:right;">
+PAK
+</td>
+<td style="text-align:right;">
+Afghanistan
+</td>
+<td style="text-align:right;">
+AFG
+</td>
+<td style="text-align:right;">
+AFG
+</td>
+<td style="text-align:right;">
+6398
+</td>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+low
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2010
+</td>
+<td style="text-align:right;">
+Egypt
+</td>
+<td style="text-align:right;">
+ARE
+</td>
+<td style="text-align:right;">
+EGY
+</td>
+<td style="text-align:right;">
+Albania
+</td>
+<td style="text-align:right;">
+ALB
+</td>
+<td style="text-align:right;">
+ALB
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+none
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2010
+</td>
+<td style="text-align:right;">
+China
+</td>
+<td style="text-align:right;">
+CHI
+</td>
+<td style="text-align:right;">
+CHN
+</td>
+<td style="text-align:right;">
+Albania
+</td>
+<td style="text-align:right;">
+ALB
+</td>
+<td style="text-align:right;">
+ALB
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+none
+</td>
+</tr>
+</tbody>
+
+</table>
+</div>
+</div>
+</section>
+<section id="diagnose-your-data" class="level2">
+<h2 class="anchored" data-anchor-id="diagnose-your-data">Diagnose your Data</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Properties of the data </span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>dataset <span class="sc">|&gt;</span> </span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">diagnose</span>() <span class="sc">|&gt;</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">formattable</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<table class="table table-condensed">
+<thead>
+<tr>
+<th style="text-align:right;">
+variables
+</th>
+<th style="text-align:right;">
+types
+</th>
+<th style="text-align:right;">
+missing_count
+</th>
+<th style="text-align:right;">
+missing_percent
+</th>
+<th style="text-align:right;">
+unique_count
+</th>
+<th style="text-align:right;">
+unique_rate
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+year
+</td>
+<td style="text-align:right;">
+numeric
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+13
+</td>
+<td style="text-align:right;">
+2.01e-04
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coo_name
+</td>
+<td style="text-align:right;">
+character
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+210
+</td>
+<td style="text-align:right;">
+3.24e-03
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coo
+</td>
+<td style="text-align:right;">
+character
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+210
+</td>
+<td style="text-align:right;">
+3.24e-03
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coo_iso
+</td>
+<td style="text-align:right;">
+character
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+210
+</td>
+<td style="text-align:right;">
+3.24e-03
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coa_name
+</td>
+<td style="text-align:right;">
+character
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+189
+</td>
+<td style="text-align:right;">
+2.92e-03
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coa
+</td>
+<td style="text-align:right;">
+character
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+189
+</td>
+<td style="text-align:right;">
+2.92e-03
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coa_iso
+</td>
+<td style="text-align:right;">
+character
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+189
+</td>
+<td style="text-align:right;">
+2.92e-03
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+refugees
+</td>
+<td style="text-align:right;">
+numeric
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+5466
+</td>
+<td style="text-align:right;">
+8.43e-02
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+asylum_seekers
+</td>
+<td style="text-align:right;">
+numeric
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+3870
+</td>
+<td style="text-align:right;">
+5.97e-02
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+returned_refugees
+</td>
+<td style="text-align:right;">
+numeric
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+596
+</td>
+<td style="text-align:right;">
+9.20e-03
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+idps
+</td>
+<td style="text-align:right;">
+numeric
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+351
+</td>
+<td style="text-align:right;">
+5.42e-03
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+returned_idps
+</td>
+<td style="text-align:right;">
+numeric
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+205
+</td>
+<td style="text-align:right;">
+3.16e-03
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+stateless
+</td>
+<td style="text-align:right;">
+numeric
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+627
+</td>
+<td style="text-align:right;">
+9.67e-03
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+ooc
+</td>
+<td style="text-align:right;">
+numeric
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+685
+</td>
+<td style="text-align:right;">
+1.06e-02
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+oip
+</td>
+<td style="text-align:right;">
+numeric
+</td>
+<td style="text-align:right;">
+64709
+</td>
+<td style="text-align:right;">
+99.8
+</td>
+<td style="text-align:right;">
+96
+</td>
+<td style="text-align:right;">
+1.48e-03
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+hst
+</td>
+<td style="text-align:right;">
+numeric
+</td>
+<td style="text-align:right;">
+58845
+</td>
+<td style="text-align:right;">
+90.8
+</td>
+<td style="text-align:right;">
+52
+</td>
+<td style="text-align:right;">
+8.02e-04
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+rate_asylum_seekers
+</td>
+<td style="text-align:right;">
+factor
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+3
+</td>
+<td style="text-align:right;">
+4.63e-05
+</td>
+</tr>
+</tbody>
+
+</table>
+</div>
+</div>
+<ul>
+<li><p><code>variables</code>: name of each variable</p></li>
+<li><p><code>types</code>: data type of each variable</p></li>
+<li><p><code>missing_count</code>: number of missing values</p></li>
+<li><p><code>missing_percent</code>: percentage of missing values</p></li>
+<li><p><code>unique_count</code>: number of unique values</p></li>
+<li><p><code>unique_rate</code>: rate of unique value - unique_count / number of observations</p></li>
+</ul>
+</section>
+<section id="diagnose-outliers" class="level2">
+<h2 class="anchored" data-anchor-id="diagnose-outliers">Diagnose Outliers</h2>
+<p>These are several numerical variables that have outliers above, let’s see how the data looks with and without them.</p>
+<ul>
+<li><p>Create a table with columns containing outliers</p></li>
+<li><p>Plot outliers in a box plot and histogram</p></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Table showing outliers</span></span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a>dataset <span class="sc">|&gt;</span></span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">diagnose_outlier</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(outliers_ratio<span class="sc">&gt;</span><span class="dv">0</span>) <span class="sc">|&gt;</span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">rate=</span>outliers_mean <span class="sc">/</span> with_mean) <span class="sc">|&gt;</span></span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span> (<span class="fu">desc</span>(rate)) <span class="sc">|&gt;</span></span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>outliers_cnt) <span class="sc">|&gt;</span></span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">formattable</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<table class="table table-condensed">
+<thead>
+<tr>
+<th style="text-align:right;">
+variables
+</th>
+<th style="text-align:right;">
+outliers_ratio
+</th>
+<th style="text-align:right;">
+outliers_mean
+</th>
+<th style="text-align:right;">
+with_mean
+</th>
+<th style="text-align:right;">
+without_mean
+</th>
+<th style="text-align:right;">
+rate
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+returned_idps
+</td>
+<td style="text-align:right;">
+0.3148
+</td>
+<td style="text-align:right;">
+224340
+</td>
+<td style="text-align:right;">
+706.2
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+317.69
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+idps
+</td>
+<td style="text-align:right;">
+0.5863
+</td>
+<td style="text-align:right;">
+1208977
+</td>
+<td style="text-align:right;">
+7088.7
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+170.55
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+hst
+</td>
+<td style="text-align:right;">
+0.0910
+</td>
+<td style="text-align:right;">
+633262
+</td>
+<td style="text-align:right;">
+6264.7
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+101.08
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+stateless
+</td>
+<td style="text-align:right;">
+1.5137
+</td>
+<td style="text-align:right;">
+49986
+</td>
+<td style="text-align:right;">
+756.6
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+66.06
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+returned_refugees
+</td>
+<td style="text-align:right;">
+2.3932
+</td>
+<td style="text-align:right;">
+3070
+</td>
+<td style="text-align:right;">
+73.5
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+41.79
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+ooc
+</td>
+<td style="text-align:right;">
+2.5953
+</td>
+<td style="text-align:right;">
+16857
+</td>
+<td style="text-align:right;">
+437.5
+</td>
+<td style="text-align:right;">
+0.0
+</td>
+<td style="text-align:right;">
+38.53
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+asylum_seekers
+</td>
+<td style="text-align:right;">
+17.0532
+</td>
+<td style="text-align:right;">
+3224
+</td>
+<td style="text-align:right;">
+564.2
+</td>
+<td style="text-align:right;">
+17.2
+</td>
+<td style="text-align:right;">
+5.72
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+refugees
+</td>
+<td style="text-align:right;">
+18.2475
+</td>
+<td style="text-align:right;">
+18741
+</td>
+<td style="text-align:right;">
+3440.0
+</td>
+<td style="text-align:right;">
+24.8
+</td>
+<td style="text-align:right;">
+5.45
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+oip
+</td>
+<td style="text-align:right;">
+0.0247
+</td>
+<td style="text-align:right;">
+932402
+</td>
+<td style="text-align:right;">
+196611.2
+</td>
+<td style="text-align:right;">
+56460.6
+</td>
+<td style="text-align:right;">
+4.74
+</td>
+</tr>
+</tbody>
+
+</table>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Boxplots and histograms of data with and without outliers </span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>dataset <span class="sc">|&gt;</span> </span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="fu">find_outliers</span>(dataset)) <span class="sc">|&gt;</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_outlier</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="hw-02-04_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="hw-02-04_files/figure-html/unnamed-chunk-6-2.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="hw-02-04_files/figure-html/unnamed-chunk-6-3.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="hw-02-04_files/figure-html/unnamed-chunk-6-4.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="hw-02-04_files/figure-html/unnamed-chunk-6-5.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="hw-02-04_files/figure-html/unnamed-chunk-6-6.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="hw-02-04_files/figure-html/unnamed-chunk-6-7.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="hw-02-04_files/figure-html/unnamed-chunk-6-8.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="hw-02-04_files/figure-html/unnamed-chunk-6-9.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="basic-exploration-of-missing-values-nas" class="level2">
+<h2 class="anchored" data-anchor-id="basic-exploration-of-missing-values-nas">Basic Exploration of Missing Values (NAs)</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Randomly generate NA's for 30</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>na.dataset <span class="ot">&lt;-</span> dataset <span class="sc">|&gt;</span> </span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">generateNA</span>(<span class="at">p=</span><span class="fl">0.3</span>)</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a><span class="co"># First six rows </span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>na.dataset <span class="sc">|&gt;</span></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>() <span class="sc">|&gt;</span></span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">formattable</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<table class="table table-condensed">
+<thead>
+<tr>
+<th style="text-align:right;">
+year
+</th>
+<th style="text-align:right;">
+coo_name
+</th>
+<th style="text-align:right;">
+coo
+</th>
+<th style="text-align:right;">
+coo_iso
+</th>
+<th style="text-align:right;">
+coa_name
+</th>
+<th style="text-align:right;">
+coa
+</th>
+<th style="text-align:right;">
+coa_iso
+</th>
+<th style="text-align:right;">
+refugees
+</th>
+<th style="text-align:right;">
+asylum_seekers
+</th>
+<th style="text-align:right;">
+returned_refugees
+</th>
+<th style="text-align:right;">
+idps
+</th>
+<th style="text-align:right;">
+returned_idps
+</th>
+<th style="text-align:right;">
+stateless
+</th>
+<th style="text-align:right;">
+ooc
+</th>
+<th style="text-align:right;">
+oip
+</th>
+<th style="text-align:right;">
+hst
+</th>
+<th style="text-align:right;">
+rate_asylum_seekers
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+2010
+</td>
+<td style="text-align:right;">
+Afghanistan
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+Afghanistan
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+AFG
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+3366
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+838250
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+none
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+Iran (Islamic Rep.&nbsp;of)
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+IRN
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+AFG
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+30
+</td>
+<td style="text-align:right;">
+21
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+low
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2010
+</td>
+<td style="text-align:right;">
+Iraq
+</td>
+<td style="text-align:right;">
+IRQ
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+Afghanistan
+</td>
+<td style="text-align:right;">
+AFG
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+none
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2010
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+PAK
+</td>
+<td style="text-align:right;">
+Afghanistan
+</td>
+<td style="text-align:right;">
+AFG
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+6398
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+low
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2010
+</td>
+<td style="text-align:right;">
+Egypt
+</td>
+<td style="text-align:right;">
+ARE
+</td>
+<td style="text-align:right;">
+EGY
+</td>
+<td style="text-align:right;">
+Albania
+</td>
+<td style="text-align:right;">
+ALB
+</td>
+<td style="text-align:right;">
+ALB
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+none
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2010
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+CHI
+</td>
+<td style="text-align:right;">
+CHN
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+ALB
+</td>
+<td style="text-align:right;">
+ALB
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+</tr>
+</tbody>
+
+</table>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create the NA Table </span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>na.dataset <span class="sc">|&gt;</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_na_pareto</span>(<span class="at">only_na =</span> <span class="cn">TRUE</span>, <span class="at">plot =</span> <span class="cn">FALSE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">formattable</span>() <span class="co"># Publishable Table </span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<table class="table table-condensed">
+<thead>
+<tr>
+<th style="text-align:right;">
+variable
+</th>
+<th style="text-align:right;">
+frequencies
+</th>
+<th style="text-align:right;">
+ratio
+</th>
+<th style="text-align:right;">
+grade
+</th>
+<th style="text-align:right;">
+cumulative
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+oip
+</td>
+<td style="text-align:right;">
+64738
+</td>
+<td style="text-align:right;">
+0.999
+</td>
+<td style="text-align:right;">
+Remove
+</td>
+<td style="text-align:right;">
+15.5
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+hst
+</td>
+<td style="text-align:right;">
+60652
+</td>
+<td style="text-align:right;">
+0.936
+</td>
+<td style="text-align:right;">
+Remove
+</td>
+<td style="text-align:right;">
+30.1
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+asylum_seekers
+</td>
+<td style="text-align:right;">
+19443
+</td>
+<td style="text-align:right;">
+0.300
+</td>
+<td style="text-align:right;">
+Bad
+</td>
+<td style="text-align:right;">
+34.7
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coa
+</td>
+<td style="text-align:right;">
+19443
+</td>
+<td style="text-align:right;">
+0.300
+</td>
+<td style="text-align:right;">
+Bad
+</td>
+<td style="text-align:right;">
+39.4
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coa_iso
+</td>
+<td style="text-align:right;">
+19443
+</td>
+<td style="text-align:right;">
+0.300
+</td>
+<td style="text-align:right;">
+Bad
+</td>
+<td style="text-align:right;">
+44.1
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coa_name
+</td>
+<td style="text-align:right;">
+19443
+</td>
+<td style="text-align:right;">
+0.300
+</td>
+<td style="text-align:right;">
+Bad
+</td>
+<td style="text-align:right;">
+48.7
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coo
+</td>
+<td style="text-align:right;">
+19443
+</td>
+<td style="text-align:right;">
+0.300
+</td>
+<td style="text-align:right;">
+Bad
+</td>
+<td style="text-align:right;">
+53.4
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coo_iso
+</td>
+<td style="text-align:right;">
+19443
+</td>
+<td style="text-align:right;">
+0.300
+</td>
+<td style="text-align:right;">
+Bad
+</td>
+<td style="text-align:right;">
+58.0
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+coo_name
+</td>
+<td style="text-align:right;">
+19443
+</td>
+<td style="text-align:right;">
+0.300
+</td>
+<td style="text-align:right;">
+Bad
+</td>
+<td style="text-align:right;">
+62.7
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+idps
+</td>
+<td style="text-align:right;">
+19443
+</td>
+<td style="text-align:right;">
+0.300
+</td>
+<td style="text-align:right;">
+Bad
+</td>
+<td style="text-align:right;">
+67.4
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+ooc
+</td>
+<td style="text-align:right;">
+19443
+</td>
+<td style="text-align:right;">
+0.300
+</td>
+<td style="text-align:right;">
+Bad
+</td>
+<td style="text-align:right;">
+72.0
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+rate_asylum_seekers
+</td>
+<td style="text-align:right;">
+19443
+</td>
+<td style="text-align:right;">
+0.300
+</td>
+<td style="text-align:right;">
+Bad
+</td>
+<td style="text-align:right;">
+76.7
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+refugees
+</td>
+<td style="text-align:right;">
+19443
+</td>
+<td style="text-align:right;">
+0.300
+</td>
+<td style="text-align:right;">
+Bad
+</td>
+<td style="text-align:right;">
+81.4
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+returned_idps
+</td>
+<td style="text-align:right;">
+19443
+</td>
+<td style="text-align:right;">
+0.300
+</td>
+<td style="text-align:right;">
+Bad
+</td>
+<td style="text-align:right;">
+86.0
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+returned_refugees
+</td>
+<td style="text-align:right;">
+19443
+</td>
+<td style="text-align:right;">
+0.300
+</td>
+<td style="text-align:right;">
+Bad
+</td>
+<td style="text-align:right;">
+90.7
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+stateless
+</td>
+<td style="text-align:right;">
+19443
+</td>
+<td style="text-align:right;">
+0.300
+</td>
+<td style="text-align:right;">
+Bad
+</td>
+<td style="text-align:right;">
+95.3
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+year
+</td>
+<td style="text-align:right;">
+19443
+</td>
+<td style="text-align:right;">
+0.300
+</td>
+<td style="text-align:right;">
+Bad
+</td>
+<td style="text-align:right;">
+100.0
+</td>
+</tr>
+</tbody>
+
+</table>
+</div>
+</div>
+<ul>
+<li>Plots showing frequency of missing values</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the intersect of the columns with missing values</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="co"># This plot visualizes the table above</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>na.dataset <span class="sc">|&gt;</span> </span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_na_pareto</span>(<span class="at">only_na =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="hw-02-04_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="advanced-exploration-of-missing-values-nas" class="level2">
+<h2 class="anchored" data-anchor-id="advanced-exploration-of-missing-values-nas">Advanced Exploration of Missing Values (NAs)</h2>
+<ul>
+<li><p>Intersect plot that shows, for every combination of columns relevant, how many missing values are common</p></li>
+<li><p>Orange boxes are the columns in question</p></li>
+<li><p>x axis (top green bar plots) show the number of missing values in that column</p></li>
+<li><p>y axis (right green bars) show the number of missing values in the columns in orange blocks</p></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the intersect of the 5 columns with the most missing values </span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="co"># This means that some combinations of columns have missing values in the same row</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>na.dataset <span class="sc">|&gt;</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(refugees,returned_refugees,asylum_seekers) <span class="sc">|&gt;</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_na_intersect</span>(<span class="at">only_na=</span><span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="hw-02-04_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<section id="determining-if-na-observations-are-the-same" class="level3">
+<h3 class="anchored" data-anchor-id="determining-if-na-observations-are-the-same"><strong>Determining if NA Observations are the Same</strong></h3>
+<ul>
+<li><p>Missing values can be the same observation across several columns, this is not shown above</p></li>
+<li><p>The visdat package can solve this with the <code>vis_miss()</code> function which shows the rows with missing values through <code>ggplotly()</code></p></li>
+<li><p>Here we can see ALL columns with NAs, and w can zoom into individual rows (interactive plot)</p></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Interactive plotly() plot of all NA values to examine every row </span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Taking a long time to compute so commenting it out</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="st">''' na.dataset |&gt;</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="st">   select(refugees,asylum_seekers,returned_refugees) |&gt;</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="st">   vis_miss() |&gt;</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="st">   ggplotly() '''</span></span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>  </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-error">
+<pre><code>Error: &lt;text&gt;:3:3: unexpected string constant
+5:    vis_miss() |&gt;
+6:    ggplotly() '
+     ^</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="impute-outliers-and-nas" class="level2">
+<h2 class="anchored" data-anchor-id="impute-outliers-and-nas">Impute Outliers and NAs</h2>
+<p>Removing outliers and NAs is tricky.</p>
+<p>The principle goal for all imputation is to find the method that does not change the distribution too much (or oddly).</p>
+<section id="classifying-outliers" class="level3">
+<h3 class="anchored" data-anchor-id="classifying-outliers">Classifying Outliers</h3>
+<p>Before imputing outliers, we want diagnose whether it’s natural outliers or not. We will be looking at “asylum_seekers” for example across rate_asylum_seekers, because there are outliers and several NAs, which we will impute below.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Box Plot </span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>dataset <span class="sc">%&gt;%</span> <span class="co"># Set the simulated normal data as a data frame</span></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggplot</span>(<span class="fu">aes</span>(<span class="at">x=</span> asylum_seekers, <span class="at">y=</span>rate_asylum_seekers, <span class="at">fill=</span> rate_asylum_seekers)) <span class="sc">+</span> <span class="co"># Create a ggplot </span></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>(<span class="at">width=</span><span class="fl">0.5</span>, <span class="at">outlier.size =</span> <span class="dv">2</span>, <span class="at">outlier.alpha =</span> <span class="fl">0.5</span>)<span class="sc">+</span> </span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Asylum seeker"</span>)<span class="sc">+</span> <span class="co"># Label for xaxis</span></span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"rate of asylum seekers"</span>)<span class="sc">+</span> <span class="co"># Label for yaxis</span></span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span> (<span class="at">legend.position =</span><span class="st">"none"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="hw-02-04_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>We remove outliers using <code>imputate_outlier()</code> and replace them with values that are estimates based on the existing data</p>
+<ul>
+<li><p><code>mean</code>: arithmetic mean</p></li>
+<li><p><code>median</code>: median</p></li>
+<li><p><code>mode</code>: mode</p></li>
+<li><p><code>capping</code>: Impute the upper outliers with 95 percentile, and impute the bottom outliers with 5 percentile - aka Winsorizing</p></li>
+</ul>
+</section>
+</section>
+<section id="mean-imputation" class="level2">
+<h2 class="anchored" data-anchor-id="mean-imputation">Mean imputation</h2>
+<p>The mean of the observed values for each variable is computed and the outliers for that variable are imputed by this mean.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Raw summary, output suppressed</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>mean_out_imp_asylum <span class="ot">&lt;-</span> dataset <span class="sc">|&gt;</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(asylum_seekers) <span class="sc">|&gt;</span></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(asylum_seekers <span class="sc">&lt;</span> <span class="dv">100</span>) <span class="sc">|&gt;</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">imputate_outlier</span>(asylum_seekers, <span class="at">method =</span> <span class="st">"mean"</span>)</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Output showing the summary statistics of our imputation</span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>mean_out_imp_asylum <span class="sc">|&gt;</span></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summary</span>() </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Impute outliers with mean
+
+* Information of Imputation (before vs after)
+                    Original Imputation
+described_variables "value"  "value"   
+n                   "51840"  "51840"   
+na                  "0"      "0"       
+mean                "13.47"  " 8.13"   
+sd                  "20.39"  " 9.15"   
+se_mean             "0.0895" "0.0402"  
+IQR                 "16.0"   "13.5"    
+skewness            "2.16"   "1.36"    
+kurtosis            "4.31"   "1.51"    
+p00                 "0"      "0"       
+p01                 "0"      "0"       
+p05                 "0"      "0"       
+p10                 "0"      "0"       
+p20                 "0"      "0"       
+p25                 "0"      "0"       
+p30                 "0"      "0"       
+p40                 "5"      "5"       
+p50                 "5"      "5"       
+p60                 "7"      "7"       
+p70                 "12"     "12"      
+p75                 "16.0"   "13.5"    
+p80                 "21.0"   "13.5"    
+p90                 "42"     "21"      
+p95                 "63"     "29"      
+p99                 "91"     "38"      
+p100                "99"     "40"      </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualizing of the mean imputation</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>mean_out_imp_asylum <span class="sc">|&gt;</span></span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="hw-02-04_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="median-imputation" class="level2">
+<h2 class="anchored" data-anchor-id="median-imputation">Median Imputation</h2>
+<p>The median of the observed values of each variable is computed and the outliers for that variable are imputed by this median</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Raw summary, output suppressed</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>med_out_imp_asylum <span class="ot">&lt;-</span> dataset <span class="sc">|&gt;</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(asylum_seekers) <span class="sc">|&gt;</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(asylum_seekers <span class="sc">&lt;</span> <span class="dv">100</span>) <span class="sc">|&gt;</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">imputate_outlier</span>(asylum_seekers, <span class="at">method =</span> <span class="st">"mean"</span>)</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Output showing the summary statistics of our imputation</span></span>
+<span id="cb27-8"><a href="#cb27-8" aria-hidden="true" tabindex="-1"></a>med_out_imp_asylum <span class="sc">|&gt;</span></span>
+<span id="cb27-9"><a href="#cb27-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summary</span>() </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Impute outliers with mean
+
+* Information of Imputation (before vs after)
+                    Original Imputation
+described_variables "value"  "value"   
+n                   "51840"  "51840"   
+na                  "0"      "0"       
+mean                "13.47"  " 8.13"   
+sd                  "20.39"  " 9.15"   
+se_mean             "0.0895" "0.0402"  
+IQR                 "16.0"   "13.5"    
+skewness            "2.16"   "1.36"    
+kurtosis            "4.31"   "1.51"    
+p00                 "0"      "0"       
+p01                 "0"      "0"       
+p05                 "0"      "0"       
+p10                 "0"      "0"       
+p20                 "0"      "0"       
+p25                 "0"      "0"       
+p30                 "0"      "0"       
+p40                 "5"      "5"       
+p50                 "5"      "5"       
+p60                 "7"      "7"       
+p70                 "12"     "12"      
+p75                 "16.0"   "13.5"    
+p80                 "21.0"   "13.5"    
+p90                 "42"     "21"      
+p95                 "63"     "29"      
+p99                 "91"     "38"      
+p100                "99"     "40"      </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Vizualization of median imputation</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>med_out_imp_asylum <span class="sc">|&gt;</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="hw-02-04_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="mode-imputation" class="level2">
+<h2 class="anchored" data-anchor-id="mode-imputation">Mode Imputation</h2>
+<p>The mode of the observed values of each variable is computed and the outliers for that variable are imputed by this mode</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Raw summary, output suppressed </span></span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>mode_out_imp_asylum <span class="ot">&lt;-</span> dataset <span class="sc">|&gt;</span></span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(asylum_seekers) <span class="sc">|&gt;</span></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(asylum_seekers <span class="sc">&lt;</span> <span class="dv">100</span>) <span class="sc">|&gt;</span></span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">imputate_outlier</span>(asylum_seekers, <span class="at">method=</span><span class="st">"mode"</span>)</span>
+<span id="cb30-6"><a href="#cb30-6" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb30-7"><a href="#cb30-7" aria-hidden="true" tabindex="-1"></a><span class="co">#Output showing summary stats of the imputation</span></span>
+<span id="cb30-8"><a href="#cb30-8" aria-hidden="true" tabindex="-1"></a>mode_out_imp_asylum <span class="sc">|&gt;</span></span>
+<span id="cb30-9"><a href="#cb30-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summary</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Impute outliers with mode
+
+* Information of Imputation (before vs after)
+                    Original Imputation
+described_variables "value"  "value"   
+n                   "51840"  "51840"   
+na                  "0"      "0"       
+mean                "13.47"  " 6.73"   
+sd                  "20.39"  " 9.25"   
+se_mean             "0.0895" "0.0406"  
+IQR                 "16"     " 9"      
+skewness            "2.16"   "1.68"    
+kurtosis            "4.31"   "2.24"    
+p00                 "0"      "0"       
+p01                 "0"      "0"       
+p05                 "0"      "0"       
+p10                 "0"      "0"       
+p20                 "0"      "0"       
+p25                 "0"      "0"       
+p30                 "0"      "0"       
+p40                 "5"      "0"       
+p50                 "5"      "5"       
+p60                 "7"      "5"       
+p70                 "12"     " 7"      
+p75                 "16"     " 9"      
+p80                 "21"     "12"      
+p90                 "42"     "21"      
+p95                 "63"     "29"      
+p99                 "91"     "38"      
+p100                "99"     "40"      </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualization of the mode imputation</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>mode_out_imp_asylum <span class="sc">|&gt;</span></span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="hw-02-04_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<section id="capping-imputation-aka-winsorizing" class="level3">
+<h3 class="anchored" data-anchor-id="capping-imputation-aka-winsorizing">Capping Imputation (aka Winsorizing)</h3>
+<p>The Percentile Capping is a method of Imputing the outlier values by replacing those observations outside the lower limit with the value of 5th percentile and those that lie above the upper limit, with the value of 95th percentile of the same dataset.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Raw summary, output suppressed</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>cap_out_imp_asylum<span class="ot">&lt;-</span> dataset <span class="sc">|&gt;</span></span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(asylum_seekers) <span class="sc">|&gt;</span></span>
+<span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(asylum_seekers <span class="sc">&lt;</span> <span class="dv">600</span>) <span class="sc">|&gt;</span></span>
+<span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">imputate_outlier</span>(asylum_seekers, <span class="at">method =</span> <span class="st">"capping"</span>)</span>
+<span id="cb33-6"><a href="#cb33-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb33-7"><a href="#cb33-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Output showing the summary statistics of our imputation</span></span>
+<span id="cb33-8"><a href="#cb33-8" aria-hidden="true" tabindex="-1"></a>cap_out_imp_asylum <span class="sc">|&gt;</span></span>
+<span id="cb33-9"><a href="#cb33-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summary</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Impute outliers with capping
+
+* Information of Imputation (before vs after)
+                    Original Imputation
+described_variables "value"  "value"   
+n                   "59545"  "59545"   
+na                  "0"      "0"       
+mean                "44.9"   "49.5"    
+sd                  "96.9"   "91.6"    
+se_mean             "0.397"  "0.375"   
+IQR                 "32"     "32"      
+skewness            "3.24"   "1.86"    
+kurtosis            "11.02"  " 1.61"   
+p00                 "0"      "0"       
+p01                 "0"      "0"       
+p05                 "0"      "0"       
+p10                 "0"      "0"       
+p20                 "0"      "0"       
+p25                 "0"      "0"       
+p30                 "0"      "0"       
+p40                 "5"      "5"       
+p50                 "6"      "6"       
+p60                 "11"     "11"      
+p70                 "22"     "22"      
+p75                 "32"     "32"      
+p80                 "49"     "49"      
+p90                 "138"    "265"     
+p95                 "265"    "265"     
+p99                 "500"    "265"     
+p100                "599"    "265"     </code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualization  of the capping imputation</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>cap_out_imp_asylum <span class="sc">|&gt;</span></span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="hw-02-04_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+</section>
+<section id="imputing-nas" class="level2">
+<h2 class="anchored" data-anchor-id="imputing-nas">Imputing NA’s</h2>
+<ol type="1">
+<li><p><code>knn</code>: K-nearest neighbors (KNN)</p></li>
+<li><p><code>rpart</code>: Recursive Partitioning and Regression Trees (rpart)</p></li>
+<li><p><code>mice</code>: Multivariate Imputation by Chained Equations (MICE)</p></li>
+</ol>
+<p>Since our normal <code>dataset</code> has no NA values, we will use the <code>na.dataset</code> we created earlier.</p>
+</section>
+<section id="k-nearest-neighborknn-imputation" class="level2">
+<h2 class="anchored" data-anchor-id="k-nearest-neighborknn-imputation">K-Nearest-Neighbor(KNN) Imputation</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co"># KNN plot of the dataset without categories</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a>dataset <span class="sc">|&gt;</span></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(refugees,returned_refugees) <span class="sc">|&gt;</span></span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">clara</span>(<span class="dv">2</span>) <span class="sc">|&gt;</span></span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a><span class="fu">autoplot</span>() <span class="sc">+</span> <span class="fu">scale_color_discrete</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="hw-02-04_files/figure-html/unnamed-chunk-21-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="co"># There is no missing values in this dataset so knn for na Doesnt work</span></span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="co"># Raw summary, output suppressed</span></span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a><span class="st">''' knn_na_imp_asylum &lt;- na.dataset |&gt;</span></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a><span class="st">    filter(coo_name == typeof(character()))|&gt;</span></span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a><span class="st">  imputate_na(asylum_seekers,method= "knn")</span></span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a><span class="st"># Plot showing the results of the imputation</span></span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a><span class="st">knn_na_imp_asylum |&gt;</span></span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a><span class="st">  plot() '''</span> </span>
+<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a><span class="co">#</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-error">
+<pre><code>Error: &lt;text&gt;:3:3: unexpected string constant
+7: knn_na_imp_asylum |&gt;
+8:   plot() '
+     ^</code></pre>
+</div>
+</div>
+<section id="recursive-partitioning-and-regression-trees-rpart" class="level3">
+<h3 class="anchored" data-anchor-id="recursive-partitioning-and-regression-trees-rpart"><strong>Recursive Partitioning and Regression Trees (rpart)</strong></h3>
+<p>rpart is a decision tree machine learning algorithm that builds classification or regression models through a two stage process, which can be thought of as binary trees. The algorithm splits the data into subsets, which move down other branches of the tree until a termination criteria is reached.</p>
+<p>For example, if we are missing a value for <code>rate_asylum_seekers</code> a first decision could be whether the associated <code>asylum_seekers</code> is within a series of yes or no criteria</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Raw summary, output suppressed</span></span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>rpart_na_imp_asylum <span class="ot">&lt;-</span> na.dataset <span class="sc">|&gt;</span></span>
+<span id="cb39-3"><a href="#cb39-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(coo_name <span class="sc">==</span> <span class="fu">typeof</span>(<span class="fu">character</span>()))<span class="sc">|&gt;</span></span>
+<span id="cb39-4"><a href="#cb39-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">imputate_na</span>(asylum_seekers, <span class="at">method =</span> <span class="st">"rpart"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in imputate_na_impl(.data, vars, target, method, seed, print_flag, :
+There are no missing values in asylum_seekers.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in imputate_na_impl(.data, vars, target, method, seed, print_flag, :
+All values returned as NA. The data is not good enough for a imputation.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot showing the results of our imputation</span></span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>rpart_na_imp_asylum <span class="sc">|&gt;</span></span>
+<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="hw-02-04_files/figure-html/unnamed-chunk-23-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="multivariate-imputation-by-chained-equations-mice" class="level3">
+<h3 class="anchored" data-anchor-id="multivariate-imputation-by-chained-equations-mice"><strong>Multivariate Imputation by Chained Equations (MICE)</strong></h3>
+<p>MICE is an algorithm that fills missing values multiple times, hence dealing with uncertainty better than other methods. This approach creates multiple copies of the data that can then be analyzed and then pooled into a single dataset.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb43"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">123</span>)</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a><span class="co">#Raw summary, output suppressed</span></span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>mice_na_imp_refugees <span class="ot">&lt;-</span> na.dataset <span class="sc">|&gt;</span></span>
+<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">imputate_na</span>(refugees, <span class="at">method =</span> <span class="st">"mice"</span>, <span class="at">seed =</span> <span class="dv">123</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+ iter imp variable
+  1   1  year  refugees  asylum_seekers  returned_refugees  idps  returned_idps  stateless  ooc  oip  hst  rate_asylum_seekers
+  1   2  year  refugees  asylum_seekers  returned_refugees  idps  returned_idps  stateless  ooc  oip  hst  rate_asylum_seekers
+  1   3  year  refugees  asylum_seekers  returned_refugees  idps  returned_idps  stateless  ooc  oip  hst  rate_asylum_seekers
+  1   4  year  refugees  asylum_seekers  returned_refugees  idps  returned_idps  stateless  ooc  oip  hst  rate_asylum_seekers
+  1   5  year  refugees  asylum_seekers  returned_refugees  idps  returned_idps  stateless  ooc  oip  hst  rate_asylum_seekers
+  2   1  year  refugees  asylum_seekers  returned_refugees  idps  returned_idps  stateless  ooc  oip  hst  rate_asylum_seekers
+  2   2  year  refugees  asylum_seekers  returned_refugees  idps  returned_idps  stateless  ooc  oip  hst  rate_asylum_seekers
+  2   3  year  refugees  asylum_seekers  returned_refugees  idps  returned_idps  stateless  ooc  oip  hst  rate_asylum_seekers
+  2   4  year  refugees  asylum_seekers  returned_refugees  idps  returned_idps  stateless  ooc  oip  hst  rate_asylum_seekers
+  2   5  year  refugees  asylum_seekers  returned_refugees  idps  returned_idps  stateless  ooc  oip  hst  rate_asylum_seekers
+  3   1  year  refugees  asylum_seekers  returned_refugees  idps  returned_idps  stateless  ooc  oip  hst  rate_asylum_seekers
+  3   2  year  refugees  asylum_seekers  returned_refugees  idps  returned_idps  stateless  ooc  oip  hst  rate_asylum_seekers
+  3   3  year  refugees  asylum_seekers  returned_refugees  idps  returned_idps  stateless  ooc  oip  hst  rate_asylum_seekers
+  3   4  year  refugees  asylum_seekers  returned_refugees  idps  returned_idps  stateless  ooc  oip  hst  rate_asylum_seekers
+  3   5  year  refugees  asylum_seekers  returned_refugees  idps  returned_idps  stateless  ooc  oip  hst  rate_asylum_seekers
+  4   1  year  refugees  asylum_seekers  returned_refugees  idps  returned_idps  stateless  ooc  oip  hst  rate_asylum_seekers
+  4   2  year  refugees  asylum_seekers  returned_refugees  idps  returned_idps  stateless  ooc  oip  hst  rate_asylum_seekers
+  4   3  year  refugees  asylum_seekers  returned_refugees  idps  returned_idps  stateless  ooc  oip  hst  rate_asylum_seekers
+  4   4  year  refugees  asylum_seekers  returned_refugees  idps  returned_idps  stateless  ooc  oip  hst  rate_asylum_seekers
+  4   5  year  refugees  asylum_seekers  returned_refugees  idps  returned_idps  stateless  ooc  oip  hst  rate_asylum_seekers
+  5   1  year  refugees  asylum_seekers  returned_refugees  idps  returned_idps  stateless  ooc  oip  hst  rate_asylum_seekers
+  5   2  year  refugees  asylum_seekers  returned_refugees  idps  returned_idps  stateless  ooc  oip  hst  rate_asylum_seekers
+  5   3  year  refugees  asylum_seekers  returned_refugees  idps  returned_idps  stateless  ooc  oip  hst  rate_asylum_seekers
+  5   4  year  refugees  asylum_seekers  returned_refugees  idps  returned_idps  stateless  ooc  oip  hst  rate_asylum_seekers
+  5   5  year  refugees  asylum_seekers  returned_refugees  idps  returned_idps  stateless  ooc  oip  hst  rate_asylum_seekers</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Number of logged events: 219</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot for showing results of imputation</span></span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>mice_na_imp_refugees <span class="sc">|&gt;</span></span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="hw-02-04_files/figure-html/unnamed-chunk-25-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+</section>
+<section id="produce-an-html-transformation-summary" class="level2">
+<h2 class="anchored" data-anchor-id="produce-an-html-transformation-summary">Produce an HTML Transformation Summary</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="fu">transformation_web_report</span>(dataset,<span class="at">author =</span> <span class="st">"VISHAL BHASHYAAM"</span>,<span class="at">subtitle =</span> <span class="st">"Refugee dataset"</span>,<span class="at">output_file =</span> <span class="st">"Diagnose_Report_hw-02-04"</span>,<span class="at">output_dir =</span> <span class="st">"."</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+
+processing file: transformation_temp.Rmd</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>1/39                   
+2/39 [setup]           
+3/39                   
+4/39 [load_packages]   
+5/39                   
+6/39 [unnamed-chunk-27]
+7/39                   
+8/39 [udf]             
+9/39                   
+10/39 [create-overview] 
+11/39                   
+12/39 [overview]        
+13/39                   
+14/39 [overview-pre]    
+15/39                   
+16/39 [unnamed-chunk-28]
+17/39                   
+18/39 [unnamed-chunk-29]
+19/39                   
+20/39 [unnamed-chunk-30]
+21/39                   
+22/39 [nalist]          </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>23/39                   
+24/39 [unnamed-chunk-31]
+25/39                   
+26/39 [outlist]         </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>27/39                   
+28/39 [unnamed-chunk-32]
+29/39                   
+30/39 [skweness]        </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>31/39                   
+32/39 [unnamed-chunk-33]
+33/39                   
+34/39 [binning]         </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>35/39                   
+36/39 [unnamed-chunk-34]
+37/39                   
+38/39 [optimal-binning] 
+39/39                   </code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>output file: transformation_temp.knit.md</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>"C:/Program Files/RStudio/resources/app/bin/quarto/bin/tools/pandoc" +RTS -K512m -RTS transformation_temp.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output ./Diagnose_Report_hw-02-04.html --lua-filter "C:\Users\ASUS\AppData\Local\R\win-library\4.3\rmarkdown\rmarkdown\lua\pagebreak.lua" --lua-filter "C:\Users\ASUS\AppData\Local\R\win-library\4.3\rmarkdown\rmarkdown\lua\latex-div.lua" --embed-resources --standalone --variable bs3=TRUE --section-divs --template "C:\Users\ASUS\AppData\Local\R\win-library\4.3\rmarkdown\rmd\h\default.html" --no-highlight --variable highlightjs=1 --variable theme=bootstrap --css "C:/Users/ASUS/AppData/Local/R/win-library/4.3/dlookr/resources/dlookr-bootstrap.css" --mathjax --variable "mathjax-url=https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" --include-in-header "C:\Users\ASUS\AppData\Local\Temp\RtmpEnx4tB\rmarkdown-str73b0241609b.html" --variable code_folding=show --variable code_menu=1 --include-in-header header_temp.html --include-after-body "C:\Users\ASUS\AppData\Local\R\win-library\4.3\dlookr\resources\footer.html" </code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Output created: Diagnose_Report_hw-02-04.html</code></pre>
+</div>
+</div>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

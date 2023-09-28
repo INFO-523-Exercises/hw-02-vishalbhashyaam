@@ -111,7 +111,7 @@ dataset |>
 
 -   The classic definition of kurtosis is not robust: it could be easily spoiled by extreme outliers.
 
-## Describe your continuous data 
+## Describe your continuous data
 
 ```{r}
 # Summary statistics
@@ -151,7 +151,7 @@ dataset |>
 
 -   `p90`, `p95`, `p99`, `p100`: 90%, 95%, 99%, 100% percentiles
 
-## Describe the continuous data  : Refined
+## Describe the continuous data : Refined
 
 Selecting the required values for summary statistics
 
@@ -229,7 +229,7 @@ dataset |>
 
 ```
 
-## Normality within groups 
+## Normality within groups
 
 Looking within Coo at the subgroup normality
 
@@ -241,7 +241,7 @@ dataset |>
   formattable()
 ```
 
-## Q-Q Plots 
+## Q-Q Plots
 
 ```{r}
 dataset |> 
@@ -251,7 +251,7 @@ dataset |>
  
 ```
 
-## Producing an HTML Normality Summary 
+## Producing an HTML Normality Summary
 
 ```{r}
 eda_web_report(dataset,author = "VISHAL BHASHYAAM",subtitle = "Refugee dataset",output_file = "Diagnose_Report_hw-02-02")

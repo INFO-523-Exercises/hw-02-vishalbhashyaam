@@ -39,8 +39,8 @@ pacman::p_load(dlookr, #Exploratory data analysis(EDA)
                kableExtra, # Alternative to formattable 
                knitr, # Needed to write HTML reports
                missRanger, # To generate NA's 
-               tidyverse # Powerful data wrangling package suite like Pandas for python
-               )
+               tidyverse, # Powerful data wrangling package suite like Pandas for python
+               forecast )# Needed for Box-Cox transformations
 ```
 
 ## Load and Examine the dataset
@@ -63,24 +63,162 @@ write_csv(populations2010, "population.csv")
 ```{r}
 # adding a categorical column or group
 
-(x=dataset["returned_refugees"] |>
+(x=dataset["asylum_seekers"] |>
   max())
-(y=dataset["returned_refugees"] |>
+(y=dataset["asylum_seekers"] |>
   min())
 
-(mean_refugees = (x+y)/2)
+(mean_asylum_seekers = (x+y)/2)
 
 
 ```
 
 ```{r}
+dataset <- dataset |>
+mutate(rate_asylum_seekers = ifelse(dataset["asylum_seekers"] >mean_asylum_seekers, "High",ifelse(dataset["asylum_seekers"]<= mean_asylum_seekers & dataset["asylum_seekers"]> 0,"low","none")),
+       rate_asylum_seekers=fct_rev(rate_asylum_seekers)) # Reverse factor levels
 
+dataset |>
+  head() |>
+  formattable()
+```
+
+### **Describing Properties of our Data (Refined)**
+
+#### Skewness
+
+The symmetry of the distribution
+
+```{r}
+dataset |> 
+  select(refugees, returned_refugees, asylum_seekers,stateless) |>
+  describe() |>
+  select(described_variables, skewness) |>
+    formattable()
+```
+
+-   `describes_variables`: name of the column being described
+
+-   `skewness`: skewness
+
+## Testing Normality(Accelerated)
+
+-   Q-Q plots
+
+-   Testing overall normality of two columns
+
+-   Testing normality of groups
+
+#### Q-Q Plots:
+
+Plots of the quartiles of a target data set against the predicted quartiles from a normal distribution.
+
+notably, `plot_normality()` will show you the logarithmic and skewed transformation.
+
+```{r}
+dataset |> 
+  plot_normality(refugees, returned_refugees, asylum_seekers)
+```
+
+## Normality within Groups
+
+Looking within rate_asylum_seekers at the subgroup normality
+
+#### Q-Q Plots
+
+```{r}
+dataset %>%
+  group_by(rate_asylum_seekers) %>%
+  select (refugees, returned_refugees) %>%
+  plot_normality()
+```
+
+## Transforming data
+
+Data could be more easily interpreted with a transformation, since not all relationships in nature follow a linear relationship - i.e., many biological phenomena follow a power law (or logarithmic curve), where they do not scale linearly.
+
+We will try to transform `refMod` column with through several approaches and discuss the pros and cons of each. First however, we will remove `0` values as it is of no use.
+
+```{r}
+# Filtering out the unwanted values 
+refMod <- dataset |>
+  filter(refugees <= 1000 & refugees >=0)
+```
+
+## Square-root Transformation
+
+```{r}
+sqrtRef <- transform(refMod$refugees ,method ="sqrt")
+summary(sqrtRef)
 ```
 
 ```{r}
+sqrtRef |>
+  plot()
+```
 
+## Logarithmic (+1) Transformation
+
+```{r}
+Log1ref <- transform(refMod$refugees, method = "log+1")
+summary(Log1ref)
 ```
 
 ```{r}
+Log1ref |>
+  plot()
+```
 
+## Inverse Transformation
+
+```{r}
+Invref <- transform(refMod$refugees, method= '1/x')
+summary(Invref)
+```
+
+```{r}
+Invref |>
+  plot()
+```
+
+## Squared Transformation
+
+```{r}
+Sqrdref<- transform(refMod$refugees, method= "x^2")
+summary(Sqrdref)
+```
+
+```{r}
+Sqrdref |> 
+  plot()
+```
+
+## Cubed Transformation
+
+```{r}
+Cuberef <- transform(refMod$refugees, method= "x^3")
+summary(Cuberef)
+```
+
+```{r}
+Cuberef |>
+  plot()
+```
+
+## Box-cox Transformation
+
+```{r}
+BoxCoxref <- transform(refMod$refugees, method= "Box-Cox")
+summary(BoxCoxref)
+```
+
+```{r}
+BoxCoxref |>
+  plot()
+```
+
+## Producing an HTML Transformation Summary
+
+```{r}
+transformation_web_report(dataset,author = "VISHAL BHASHYAAM",subtitle = "Refugee dataset",output_file = "Diagnose_Report_hw-02-03",output_dir = ".")
 ```

@@ -21,6 +21,40 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -83,6 +117,945 @@ ul.task-list li input[type="checkbox"] {
 <li><p>Data transformation</p></li>
 <li><p>Prepare an HTML summary report showcasing data transformations</p></li>
 </ol>
+</section>
+<section id="required-setup" class="level2">
+<h2 class="anchored" data-anchor-id="required-setup">Required Setup</h2>
+<p>Prepare the environment with required packages</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Sets the number of significant figures to three -e.g, 1.333</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">options</span>(<span class="at">digits =</span> <span class="dv">3</span>)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Downloading required package for quick package loading</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span>(<span class="sc">!</span><span class="fu">require</span>(pacman))</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">installed.packages</span>(<span class="st">"pacman"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Loading required package: pacman</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">#loading package</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>pacman<span class="sc">::</span><span class="fu">p_load</span>(dlookr, <span class="co">#Exploratory data analysis(EDA)</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>               formattable, <span class="co"># HTML tables from R outputs</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>               here, <span class="co"># Standardizes paths to data </span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>               kableExtra, <span class="co"># Alternative to formattable </span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>               knitr, <span class="co"># Needed to write HTML reports</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>               missRanger, <span class="co"># To generate NA's </span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>               tidyverse, <span class="co"># Powerful data wrangling package suite like Pandas for python</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>               forecast )<span class="co"># Needed for Box-Cox transformations</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="load-and-examine-the-dataset" class="level2">
+<h2 class="anchored" data-anchor-id="load-and-examine-the-dataset">Load and Examine the dataset</h2>
+<ul>
+<li><p>Load date and view</p></li>
+<li><p>Examine columns and data types</p></li>
+<li><p>Examine data normality</p></li>
+<li><p>Describe properties of data</p></li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Loading the data </span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>dataset <span class="ot">&lt;-</span> dataset <span class="ot">&lt;-</span> readr<span class="sc">::</span><span class="fu">read_csv</span>(<span class="st">'https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-08-22/population.csv'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Rows: 64809 Columns: 16
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr  (6): coo_name, coo, coo_iso, coa_name, coa, coa_iso
+dbl (10): year, refugees, asylum_seekers, returned_refugees, idps, returned_...
+
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>populations2010 <span class="ot">&lt;-</span> <span class="fu">filter</span>(dataset, year <span class="sc">&gt;=</span> <span class="dv">2010</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">write_csv</span>(populations2010, <span class="st">"population.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="co"># adding a categorical column or group</span></span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>(<span class="at">x=</span>dataset[<span class="st">"asylum_seekers"</span>] <span class="sc">|&gt;</span></span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">max</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 940668</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>(<span class="at">y=</span>dataset[<span class="st">"asylum_seekers"</span>] <span class="sc">|&gt;</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">min</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>(<span class="at">mean_asylum_seekers =</span> (x<span class="sc">+</span>y)<span class="sc">/</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 470334</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>dataset <span class="ot">&lt;-</span> dataset <span class="sc">|&gt;</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mutate</span>(<span class="at">rate_asylum_seekers =</span> <span class="fu">ifelse</span>(dataset[<span class="st">"asylum_seekers"</span>] <span class="sc">&gt;</span>mean_asylum_seekers, <span class="st">"High"</span>,<span class="fu">ifelse</span>(dataset[<span class="st">"asylum_seekers"</span>]<span class="sc">&lt;=</span> mean_asylum_seekers <span class="sc">&amp;</span> dataset[<span class="st">"asylum_seekers"</span>]<span class="sc">&gt;</span> <span class="dv">0</span>,<span class="st">"low"</span>,<span class="st">"none"</span>)),</span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>       <span class="at">rate_asylum_seekers=</span><span class="fu">fct_rev</span>(rate_asylum_seekers)) <span class="co"># Reverse factor levels</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a>dataset <span class="sc">|&gt;</span></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>() <span class="sc">|&gt;</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">formattable</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<table class="table table-condensed">
+<thead>
+<tr>
+<th style="text-align:right;">
+year
+</th>
+<th style="text-align:right;">
+coo_name
+</th>
+<th style="text-align:right;">
+coo
+</th>
+<th style="text-align:right;">
+coo_iso
+</th>
+<th style="text-align:right;">
+coa_name
+</th>
+<th style="text-align:right;">
+coa
+</th>
+<th style="text-align:right;">
+coa_iso
+</th>
+<th style="text-align:right;">
+refugees
+</th>
+<th style="text-align:right;">
+asylum_seekers
+</th>
+<th style="text-align:right;">
+returned_refugees
+</th>
+<th style="text-align:right;">
+idps
+</th>
+<th style="text-align:right;">
+returned_idps
+</th>
+<th style="text-align:right;">
+stateless
+</th>
+<th style="text-align:right;">
+ooc
+</th>
+<th style="text-align:right;">
+oip
+</th>
+<th style="text-align:right;">
+hst
+</th>
+<th style="text-align:right;">
+rate_asylum_seekers
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+2010
+</td>
+<td style="text-align:right;">
+Afghanistan
+</td>
+<td style="text-align:right;">
+AFG
+</td>
+<td style="text-align:right;">
+AFG
+</td>
+<td style="text-align:right;">
+Afghanistan
+</td>
+<td style="text-align:right;">
+AFG
+</td>
+<td style="text-align:right;">
+AFG
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+351907
+</td>
+<td style="text-align:right;">
+3366
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+838250
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+none
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2010
+</td>
+<td style="text-align:right;">
+Iran (Islamic Rep.&nbsp;of)
+</td>
+<td style="text-align:right;">
+IRN
+</td>
+<td style="text-align:right;">
+IRN
+</td>
+<td style="text-align:right;">
+Afghanistan
+</td>
+<td style="text-align:right;">
+AFG
+</td>
+<td style="text-align:right;">
+AFG
+</td>
+<td style="text-align:right;">
+30
+</td>
+<td style="text-align:right;">
+21
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+low
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2010
+</td>
+<td style="text-align:right;">
+Iraq
+</td>
+<td style="text-align:right;">
+IRQ
+</td>
+<td style="text-align:right;">
+IRQ
+</td>
+<td style="text-align:right;">
+Afghanistan
+</td>
+<td style="text-align:right;">
+AFG
+</td>
+<td style="text-align:right;">
+AFG
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+none
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2010
+</td>
+<td style="text-align:right;">
+Pakistan
+</td>
+<td style="text-align:right;">
+PAK
+</td>
+<td style="text-align:right;">
+PAK
+</td>
+<td style="text-align:right;">
+Afghanistan
+</td>
+<td style="text-align:right;">
+AFG
+</td>
+<td style="text-align:right;">
+AFG
+</td>
+<td style="text-align:right;">
+6398
+</td>
+<td style="text-align:right;">
+9
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+low
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2010
+</td>
+<td style="text-align:right;">
+Egypt
+</td>
+<td style="text-align:right;">
+ARE
+</td>
+<td style="text-align:right;">
+EGY
+</td>
+<td style="text-align:right;">
+Albania
+</td>
+<td style="text-align:right;">
+ALB
+</td>
+<td style="text-align:right;">
+ALB
+</td>
+<td style="text-align:right;">
+5
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+none
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2010
+</td>
+<td style="text-align:right;">
+China
+</td>
+<td style="text-align:right;">
+CHI
+</td>
+<td style="text-align:right;">
+CHN
+</td>
+<td style="text-align:right;">
+Albania
+</td>
+<td style="text-align:right;">
+ALB
+</td>
+<td style="text-align:right;">
+ALB
+</td>
+<td style="text-align:right;">
+6
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+0
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+NA
+</td>
+<td style="text-align:right;">
+none
+</td>
+</tr>
+</tbody>
+
+</table>
+</div>
+</div>
+<section id="describing-properties-of-our-data-refined" class="level3">
+<h3 class="anchored" data-anchor-id="describing-properties-of-our-data-refined"><strong>Describing Properties of our Data (Refined)</strong></h3>
+<section id="skewness" class="level4">
+<h4 class="anchored" data-anchor-id="skewness">Skewness</h4>
+<p>The symmetry of the distribution</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>dataset <span class="sc">|&gt;</span> </span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(refugees, returned_refugees, asylum_seekers,stateless) <span class="sc">|&gt;</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">describe</span>() <span class="sc">|&gt;</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(described_variables, skewness) <span class="sc">|&gt;</span></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">formattable</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<table class="table table-condensed">
+<thead>
+<tr>
+<th style="text-align:right;">
+described_variables
+</th>
+<th style="text-align:right;">
+skewness
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+refugees
+</td>
+<td style="text-align:right;">
+41.3
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+returned_refugees
+</td>
+<td style="text-align:right;">
+85.3
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+asylum_seekers
+</td>
+<td style="text-align:right;">
+61.3
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+stateless
+</td>
+<td style="text-align:right;">
+36.6
+</td>
+</tr>
+</tbody>
+
+</table>
+</div>
+</div>
+<ul>
+<li><p><code>describes_variables</code>: name of the column being described</p></li>
+<li><p><code>skewness</code>: skewness</p></li>
+</ul>
+</section>
+</section>
+</section>
+<section id="testing-normalityaccelerated" class="level2">
+<h2 class="anchored" data-anchor-id="testing-normalityaccelerated">Testing Normality(Accelerated)</h2>
+<ul>
+<li><p>Q-Q plots</p></li>
+<li><p>Testing overall normality of two columns</p></li>
+<li><p>Testing normality of groups</p></li>
+</ul>
+<section id="q-q-plots" class="level4">
+<h4 class="anchored" data-anchor-id="q-q-plots">Q-Q Plots:</h4>
+<p>Plots of the quartiles of a target data set against the predicted quartiles from a normal distribution.</p>
+<p>notably, <code>plot_normality()</code> will show you the logarithmic and skewed transformation.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>dataset <span class="sc">|&gt;</span> </span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_normality</span>(refugees, returned_refugees, asylum_seekers)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="hw-02-03_files/figure-html/unnamed-chunk-6-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="hw-02-03_files/figure-html/unnamed-chunk-6-2.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="hw-02-03_files/figure-html/unnamed-chunk-6-3.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+</section>
+<section id="normality-within-groups" class="level2">
+<h2 class="anchored" data-anchor-id="normality-within-groups">Normality within Groups</h2>
+<p>Looking within rate_asylum_seekers at the subgroup normality</p>
+<section id="q-q-plots-1" class="level4">
+<h4 class="anchored" data-anchor-id="q-q-plots-1">Q-Q Plots</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>dataset <span class="sc">%&gt;%</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(rate_asylum_seekers) <span class="sc">%&gt;%</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span> (refugees, returned_refugees) <span class="sc">%&gt;%</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot_normality</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Adding missing grouping variables: `rate_asylum_seekers`</code></pre>
+</div>
+<div class="cell-output-display">
+<p><img src="hw-02-03_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="hw-02-03_files/figure-html/unnamed-chunk-7-2.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="hw-02-03_files/figure-html/unnamed-chunk-7-3.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="hw-02-03_files/figure-html/unnamed-chunk-7-4.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="hw-02-03_files/figure-html/unnamed-chunk-7-5.png" class="img-fluid" width="672"></p>
+</div>
+<div class="cell-output-display">
+<p><img src="hw-02-03_files/figure-html/unnamed-chunk-7-6.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+</section>
+<section id="transforming-data" class="level2">
+<h2 class="anchored" data-anchor-id="transforming-data">Transforming data</h2>
+<p>Data could be more easily interpreted with a transformation, since not all relationships in nature follow a linear relationship - i.e., many biological phenomena follow a power law (or logarithmic curve), where they do not scale linearly.</p>
+<p>We will try to transform <code>refMod</code> column with through several approaches and discuss the pros and cons of each. First however, we will remove <code>0</code> values as it is of no use.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Filtering out the unwanted values </span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>refMod <span class="ot">&lt;-</span> dataset <span class="sc">|&gt;</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(refugees <span class="sc">&lt;=</span> <span class="dv">1000</span> <span class="sc">&amp;</span> refugees <span class="sc">&gt;=</span><span class="dv">0</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="square-root-transformation" class="level2">
+<h2 class="anchored" data-anchor-id="square-root-transformation">Square-root Transformation</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>sqrtRef <span class="ot">&lt;-</span> <span class="fu">transform</span>(refMod<span class="sc">$</span>refugees ,<span class="at">method =</span><span class="st">"sqrt"</span>)</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(sqrtRef)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>* Resolving Skewness with sqrt
+
+* Information of Transformation (before vs after)
+         Original Transformation
+n        5.88e+04       5.88e+04
+na       0.00e+00       0.00e+00
+mean     7.00e+01       5.39e+00
+sd       1.57e+02       6.40e+00
+se_mean  6.49e-01       2.64e-02
+IQR      4.00e+01       4.47e+00
+skewness 3.39e+00       1.92e+00
+kurtosis 1.21e+01       3.47e+00
+p00      0.00e+00       0.00e+00
+p01      0.00e+00       0.00e+00
+p05      0.00e+00       0.00e+00
+p10      0.00e+00       0.00e+00
+p20      0.00e+00       0.00e+00
+p25      5.00e+00       2.24e+00
+p30      5.00e+00       2.24e+00
+p40      6.00e+00       2.45e+00
+p50      9.00e+00       3.00e+00
+p60      1.60e+01       4.00e+00
+p70      3.10e+01       5.57e+00
+p75      4.50e+01       6.71e+00
+p80      6.80e+01       8.25e+00
+p90      2.09e+02       1.45e+01
+p95      4.20e+02       2.05e+01
+p99      8.28e+02       2.88e+01
+p100     1.00e+03       3.16e+01</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>sqrtRef <span class="sc">|&gt;</span></span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="hw-02-03_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="logarithmic-1-transformation" class="level2">
+<h2 class="anchored" data-anchor-id="logarithmic-1-transformation">Logarithmic (+1) Transformation</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>Log1ref <span class="ot">&lt;-</span> <span class="fu">transform</span>(refMod<span class="sc">$</span>refugees, <span class="at">method =</span> <span class="st">"log+1"</span>)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(Log1ref)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>* Resolving Skewness with log+1
+
+* Information of Transformation (before vs after)
+         Original Transformation
+n        5.88e+04       5.88e+04
+na       0.00e+00       0.00e+00
+mean     7.00e+01       2.56e+00
+sd       1.57e+02       1.89e+00
+se_mean  6.49e-01       7.79e-03
+IQR      4.00e+01       2.04e+00
+skewness 3.39e+00       3.04e-01
+kurtosis 1.21e+01      -6.77e-01
+p00      0.00e+00       0.00e+00
+p01      0.00e+00       0.00e+00
+p05      0.00e+00       0.00e+00
+p10      0.00e+00       0.00e+00
+p20      0.00e+00       0.00e+00
+p25      5.00e+00       1.79e+00
+p30      5.00e+00       1.79e+00
+p40      6.00e+00       1.95e+00
+p50      9.00e+00       2.30e+00
+p60      1.60e+01       2.83e+00
+p70      3.10e+01       3.47e+00
+p75      4.50e+01       3.83e+00
+p80      6.80e+01       4.23e+00
+p90      2.09e+02       5.35e+00
+p95      4.20e+02       6.04e+00
+p99      8.28e+02       6.72e+00
+p100     1.00e+03       6.91e+00</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>Log1ref <span class="sc">|&gt;</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="hw-02-03_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="inverse-transformation" class="level2">
+<h2 class="anchored" data-anchor-id="inverse-transformation">Inverse Transformation</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>Invref <span class="ot">&lt;-</span> <span class="fu">transform</span>(refMod<span class="sc">$</span>refugees, <span class="at">method=</span> <span class="st">'1/x'</span>)</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(Invref)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>* Resolving Skewness with 1/x
+
+* Information of Transformation (before vs after)
+         Original Transformation
+n        5.88e+04       5.88e+04
+na       0.00e+00       0.00e+00
+mean     7.00e+01            Inf
+sd       1.57e+02            NaN
+se_mean  6.49e-01            NaN
+IQR      4.00e+01       1.78e-01
+skewness 3.39e+00            NaN
+kurtosis 1.21e+01            NaN
+p00      0.00e+00       1.00e-03
+p01      0.00e+00       1.21e-03
+p05      0.00e+00       2.38e-03
+p10      0.00e+00       4.78e-03
+p20      0.00e+00       1.47e-02
+p25      5.00e+00       2.22e-02
+p30      5.00e+00       3.23e-02
+p40      6.00e+00       6.25e-02
+p50      9.00e+00       1.11e-01
+p60      1.60e+01       1.67e-01
+p70      3.10e+01       2.00e-01
+p75      4.50e+01       2.00e-01
+p80      6.80e+01            Inf
+p90      2.09e+02            Inf
+p95      4.20e+02            Inf
+p99      8.28e+02            Inf
+p100     1.00e+03            Inf</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>Invref <span class="sc">|&gt;</span></span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="hw-02-03_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="squared-transformation" class="level2">
+<h2 class="anchored" data-anchor-id="squared-transformation">Squared Transformation</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>Sqrdref<span class="ot">&lt;-</span> <span class="fu">transform</span>(refMod<span class="sc">$</span>refugees, <span class="at">method=</span> <span class="st">"x^2"</span>)</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(Sqrdref)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>* Resolving Skewness with x^2
+
+* Information of Transformation (before vs after)
+         Original Transformation
+n        5.88e+04       5.88e+04
+na       0.00e+00       0.00e+00
+mean     7.00e+01       2.97e+04
+sd       1.57e+02       1.13e+05
+se_mean  6.49e-01       4.67e+02
+IQR      4.00e+01       2.00e+03
+skewness 3.39e+00       5.33e+00
+kurtosis 1.21e+01       3.12e+01
+p00      0.00e+00       0.00e+00
+p01      0.00e+00       0.00e+00
+p05      0.00e+00       0.00e+00
+p10      0.00e+00       0.00e+00
+p20      0.00e+00       0.00e+00
+p25      5.00e+00       2.50e+01
+p30      5.00e+00       2.50e+01
+p40      6.00e+00       3.60e+01
+p50      9.00e+00       8.10e+01
+p60      1.60e+01       2.56e+02
+p70      3.10e+01       9.61e+02
+p75      4.50e+01       2.02e+03
+p80      6.80e+01       4.62e+03
+p90      2.09e+02       4.37e+04
+p95      4.20e+02       1.76e+05
+p99      8.28e+02       6.86e+05
+p100     1.00e+03       1.00e+06</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>Sqrdref <span class="sc">|&gt;</span> </span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="hw-02-03_files/figure-html/unnamed-chunk-16-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="cubed-transformation" class="level2">
+<h2 class="anchored" data-anchor-id="cubed-transformation">Cubed Transformation</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>Cuberef <span class="ot">&lt;-</span> <span class="fu">transform</span>(refMod<span class="sc">$</span>refugees, <span class="at">method=</span> <span class="st">"x^3"</span>)</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(Cuberef)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>* Resolving Skewness with x^3
+
+* Information of Transformation (before vs after)
+         Original Transformation
+n        5.88e+04       5.88e+04
+na       0.00e+00       0.00e+00
+mean     7.00e+01       1.88e+07
+sd       1.57e+02       9.26e+07
+se_mean  6.49e-01       3.82e+05
+IQR      4.00e+01       9.10e+04
+skewness 3.39e+00       6.78e+00
+kurtosis 1.21e+01       5.08e+01
+p00      0.00e+00       0.00e+00
+p01      0.00e+00       0.00e+00
+p05      0.00e+00       0.00e+00
+p10      0.00e+00       0.00e+00
+p20      0.00e+00       0.00e+00
+p25      5.00e+00       1.25e+02
+p30      5.00e+00       1.25e+02
+p40      6.00e+00       2.16e+02
+p50      9.00e+00       7.29e+02
+p60      1.60e+01       4.10e+03
+p70      3.10e+01       2.98e+04
+p75      4.50e+01       9.11e+04
+p80      6.80e+01       3.14e+05
+p90      2.09e+02       9.13e+06
+p95      4.20e+02       7.41e+07
+p99      8.28e+02       5.68e+08
+p100     1.00e+03       1.00e+09</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>Cuberef <span class="sc">|&gt;</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="hw-02-03_files/figure-html/unnamed-chunk-18-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="box-cox-transformation" class="level2">
+<h2 class="anchored" data-anchor-id="box-cox-transformation">Box-cox Transformation</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>BoxCoxref <span class="ot">&lt;-</span> <span class="fu">transform</span>(refMod<span class="sc">$</span>refugees, <span class="at">method=</span> <span class="st">"Box-Cox"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in guerrero(x, lower, upper): Guerrero's method for selecting a Box-Cox
+parameter (lambda) is given for strictly positive data.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(BoxCoxref)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>* Resolving Skewness with Box-Cox
+
+* Information of Transformation (before vs after)
+         Original Transformation
+n        5.88e+04      58793.000
+na       0.00e+00          0.000
+mean     7.00e+01        -16.291
+sd       1.57e+02         36.340
+se_mean  6.49e-01          0.150
+IQR      4.00e+01          2.270
+skewness 3.39e+00         -1.308
+kurtosis 1.21e+01         -0.281
+p00      0.00e+00        -83.568
+p01      0.00e+00        -83.568
+p05      0.00e+00        -83.568
+p10      0.00e+00        -83.568
+p20      0.00e+00        -83.568
+p25      5.00e+00          1.625
+p30      5.00e+00          1.625
+p40      6.00e+00          1.811
+p50      9.00e+00          2.226
+p60      1.60e+01          2.819
+p70      3.10e+01          3.506
+p75      4.50e+01          3.895
+p80      6.80e+01          4.328
+p90      2.09e+02          5.517
+p95      4.20e+02          6.264
+p99      8.28e+02          6.997
+p100     1.00e+03          7.201</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>BoxCoxref <span class="sc">|&gt;</span></span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">plot</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="hw-02-03_files/figure-html/unnamed-chunk-20-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="producing-an-html-transformation-summary" class="level2">
+<h2 class="anchored" data-anchor-id="producing-an-html-transformation-summary">Producing an HTML Transformation Summary</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">transformation_web_report</span>(dataset,<span class="at">author =</span> <span class="st">"VISHAL BHASHYAAM"</span>,<span class="at">subtitle =</span> <span class="st">"Refugee dataset"</span>,<span class="at">output_file =</span> <span class="st">"Diagnose_Report_hw-02-03"</span>,<span class="at">output_dir =</span> <span class="st">"."</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+
+processing file: transformation_temp.Rmd</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>1/39                   
+2/39 [setup]           
+3/39                   
+4/39 [load_packages]   
+5/39                   
+6/39 [unnamed-chunk-22]
+7/39                   
+8/39 [udf]             
+9/39                   
+10/39 [create-overview] 
+11/39                   
+12/39 [overview]        
+13/39                   
+14/39 [overview-pre]    
+15/39                   
+16/39 [unnamed-chunk-23]
+17/39                   
+18/39 [unnamed-chunk-24]
+19/39                   
+20/39 [unnamed-chunk-25]
+21/39                   
+22/39 [nalist]          </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>23/39                   
+24/39 [unnamed-chunk-26]
+25/39                   
+26/39 [outlist]         </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>27/39                   
+28/39 [unnamed-chunk-27]
+29/39                   
+30/39 [skweness]        </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>31/39                   
+32/39 [unnamed-chunk-28]
+33/39                   
+34/39 [binning]         </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>35/39                   
+36/39 [unnamed-chunk-29]
+37/39                   
+38/39 [optimal-binning] 
+39/39                   </code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>output file: transformation_temp.knit.md</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>"C:/Program Files/RStudio/resources/app/bin/quarto/bin/tools/pandoc" +RTS -K512m -RTS transformation_temp.knit.md --to html4 --from markdown+autolink_bare_uris+tex_math_single_backslash --output ./Diagnose_Report_hw-02-03.html --lua-filter "C:\Users\ASUS\AppData\Local\R\win-library\4.3\rmarkdown\rmarkdown\lua\pagebreak.lua" --lua-filter "C:\Users\ASUS\AppData\Local\R\win-library\4.3\rmarkdown\rmarkdown\lua\latex-div.lua" --embed-resources --standalone --variable bs3=TRUE --section-divs --template "C:\Users\ASUS\AppData\Local\R\win-library\4.3\rmarkdown\rmd\h\default.html" --no-highlight --variable highlightjs=1 --variable theme=bootstrap --css "C:/Users/ASUS/AppData/Local/R/win-library/4.3/dlookr/resources/dlookr-bootstrap.css" --mathjax --variable "mathjax-url=https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML" --include-in-header "C:\Users\ASUS\AppData\Local\Temp\Rtmp27zS39\rmarkdown-str75d467a457a8.html" --variable code_folding=show --variable code_menu=1 --include-in-header header_temp.html --include-after-body "C:\Users\ASUS\AppData\Local\R\win-library\4.3\dlookr\resources\footer.html" </code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>
+Output created: Diagnose_Report_hw-02-03.html</code></pre>
+</div>
+</div>
 </section>
 </section>
 

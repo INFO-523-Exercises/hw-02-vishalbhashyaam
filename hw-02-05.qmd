@@ -4,3 +4,240 @@ author: "VISHAL BHASHYAAM"
 format: html
 editor: visual
 ---
+
+# Correlating Like a Data Master
+
+## Purpose of this chapter
+
+Assess relationships within a novel data set using publication quality tables and plots
+
+## Take-aways
+
+1.  Describe and visualize correlations between numerical variables
+
+2.  Visualize correlations of all numerical variables within groups
+
+3.  Describe and visualize relationships based on target variables
+
+### Required setup
+
+We first need to prepare our environment with the necessary packages.
+
+```{r}
+if (!require(pacman))
+  install.packages("pacman")
+
+pacman::p_load(
+       dlookr,
+       formattable,
+       GGally,
+       ggdist,
+       ggpubr,
+       ggridges,
+       here,
+       tidyverse)
+
+# Set global ggplot() theme
+# Theme pub_clean() from the ggpubr package with base text size = 16
+theme_set(theme_pubclean(base_size = 12)) 
+# All axes titles to their respective far right sides
+theme_update(axis.title = element_text(hjust = 1))
+# Remove axes ticks
+theme_update(axis.ticks = element_blank()) 
+# Remove legend key
+theme_update(legend.key = element_blank())
+```
+
+## **Load the Examine a Data Set**
+
+```{r}
+# Loading the data 
+dataset <- dataset <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2023/2023-08-22/population.csv')
+populations2010 <- filter(dataset, year >= 2010)
+write_csv(populations2010, "population.csv")
+```
+
+```{r}
+# What the data looks like 
+
+dataset |>
+  head()|>
+formattable()
+
+dataset |>
+  head() |>
+  formattable()
+```
+
+## Describe and Visualize Correlations
+
+Correlations are a statistical relationship between two numerical variables, may or may not be casual. Exploring Correlations in data allows to determine data independence , assumptions of parametric statistics which means the variables are both randomly collected
+
+```{r}
+# Table of correlations between numerical variables
+correlate(dataset) |>
+  formattable()
+```
+
+```{r}
+# Correlation matrix of numerical variable 
+dataset |>
+  plot_correlate()
+```
+
+## Visualize Correlations within groups 
+
+Let's see how each group co-related within these groups .
+
+```{r}
+dataset |>
+  group_by(coo) |>
+  plot_correlate()
+```
+
+This is great, we have our correlations within groups! However, the correlation matrices aren\'t always the most intuitive, so let\'s plot!
+
+We will be using the `ggpairs()` function within the `GGally` package. Specifically, we are looking at the correlations between predawn leaf water potential `pLWP` and midday leaf water potential `mLWP`. Leaf water potential is a key indicator for how stressed plants are in droughts.
+
+```{r}
+dataset |> 
+  dplyr::select(refugees,returned_refugees,asylum_seekers) |>
+  ggpairs(aes(color="red" ,alpha = 0.5)) +
+  theme(strip.background = element_blank())  # I don't like facet strip backgrounds...
+
+```
+
+## Describe and Visualize Relationships Based on Target Variables
+
+### Target Variables
+
+`Target variables` are essentially numerical or categorical variables that you want to relate others to in a data frame. `dlookr` does this through the `target_by()` function, which is similar to `group_by()` in `dplyr`. The `relate()` function then briefly analyzes the relationship between the target variable and the variables of interest.
+
+The relationships below will have the formula relationship `target ~ predictor`.
+
+### Numerical Target Variables: Numerical Variable of Interest
+
+`Formula: refugees(numerical response)  ~ asylum_seekers(numerical predictor)`
+
+```{r}
+# First, we need to remove NAs, they cause an error
+dataset.noNA <- dataset |> 
+  drop_na()
+
+# The numerical predictor variable that we want
+num <- target_by(dataset.noNA,refugees)
+
+# Relating the variable of interest to the numerical target variable
+num_num <- relate(num,asylum_seekers )
+
+# Summary of the regression analysis - the same as the summary from lm(Formula)
+summary(num_num)
+```
+
+```{r}
+# Plot the linear relationship
+plot(num_num) 
+
+```
+
+```{r}
+(x=dataset["asylum_seekers"] |>
+  max())
+(y=dataset["asylum_seekers"] |>
+  min())
+
+(mean_asylum_seekers = (x+y)/2)
+# Adding a categorical group
+dataset <- dataset |>
+mutate(rate_asylum_seekers = ifelse(dataset["asylum_seekers"] >mean_asylum_seekers, "High",ifelse(dataset["asylum_seekers"]<= mean_asylum_seekers & dataset["asylum_seekers"]> 0,"low","none")),
+       rate_asylum_seekers=fct_rev(rate_asylum_seekers)) # Reverse factor levels
+# The top inforamtion in the dataset
+dataset |>
+  head() |>
+  formattable()
+```
+
+### **Numerical Target Variables: Categorical Variable of Interest**
+
+Formula: `asylum_seekers(numerical response) ~ rate_asylum_seekers (categorical predictor)`
+
+```{r}
+# The categorical predictor variable that we want
+num <- target_by(dataset,refugees) 
+
+# We need to change Group to a factor
+num$coo_name <- as.factor(num$coo_name)
+
+# Relating the variable of interest to the numerical target variable
+num_cat <- relate(num,stateless)
+
+# Summary of the ANOVA analysis - the same as the summary from anova(lm(Formula))
+summary(num_cat)
+
+
+```
+
+```{r}
+plot(num_cat) + 
+  theme(axis.text.x = element_blank())
+```
+
+### Categorical Target Variables: Numerical Variable of Interest
+
+Note that this produces descriptive statistics, unlike the other relationships we are looking at.
+
+Formula: `Group (categorical) ~ pLWP (numerical)`
+
+```{r}
+# The categorical predictor variable that we want
+categ <- target_by(dataset, refugees)
+
+# Relating the variable of interest to the numerical target variable
+cat_num <- relate(categ, idps)
+
+# Summary of descriptive statistics
+summary(cat_num)
+```
+
+```{r}
+plot(cat_num)
+```
+
+## Categorical Target Variables: Categorical Variable of Interest
+
+```{r}
+# Create new categorical column
+cat_dataset <- dataset |>
+  select(refugees, coo) |>
+  drop_na() |>
+  mutate(rate_refugees = ifelse(
+    refugees > (mean(refugees + sd(refugees))), 
+                          "Yes", 
+                          "No"))
+
+# New dataset 
+cat_dataset |>
+  head() |>
+  formattable()
+```
+
+Now we have two categories!
+
+```{r,error=TRUE}
+# The categorical predictor variable that we want
+categ <- target_by(cat_dataset,rate_refugees)
+
+# Relating the variable of interest to the categorical target variable
+cat_cat <- relate(categ, coo_name)
+
+# Summary of the Chi-square test for Independence
+summary(cat_cat)
+```
+
+```{r,error=TRUE}
+plot(cat_cat)
+```
+
+```{r}
+
+```

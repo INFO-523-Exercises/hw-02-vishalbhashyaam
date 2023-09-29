@@ -85,7 +85,7 @@ dataset |>
   plot_correlate()
 ```
 
-## Visualize Correlations within groups 
+## Visualize Correlations within groups
 
 Let's see how each group co-related within these groups .
 
@@ -95,7 +95,7 @@ dataset |>
   plot_correlate()
 ```
 
-This is great, we have our correlations within groups! However, the correlation matrices aren\'t always the most intuitive, so let\'s plot!
+This is great, we have our correlations within groups! However, the correlation matrices aren't always the most intuitive, so let's plot!
 
 We will be using the `ggpairs()` function within the `GGally` package. Specifically, we are looking at the correlations between predawn leaf water potential `pLWP` and midday leaf water potential `mLWP`. Leaf water potential is a key indicator for how stressed plants are in droughts.
 
@@ -103,8 +103,18 @@ We will be using the `ggpairs()` function within the `GGally` package. Specifica
 dataset |> 
   dplyr::select(refugees,returned_refugees,asylum_seekers) |>
   ggpairs(aes(color="red" ,alpha = 0.5)) +
-  theme(strip.background = element_blank())  # I don't like facet strip backgrounds...
+  theme(strip.background = element_blank())  # Removing facet strip backgrounds
 
+```
+
+-   Since the dataset - Refugee Dataset I use does not contain all the required data for Operations I am changing the data to the default dataset used in the github.
+
+```{r}
+data <- read.csv(".\\Data\\Figure 2\\Data_Fig2_Repo.csv")
+data["Sap_Flow"] =data["SF"]
+data |>
+  head()|>
+  formattable()
 ```
 
 ## Describe and Visualize Relationships Based on Target Variables
@@ -117,21 +127,23 @@ The relationships below will have the formula relationship `target ~ predictor`.
 
 ### Numerical Target Variables: Numerical Variable of Interest
 
-`Formula: refugees(numerical response)  ~ asylum_seekers(numerical predictor)`
+`Formula: Sap_Flow (numerical response)  ~ pLWP (numerical predictor)`
 
 ```{r}
 # First, we need to remove NAs, they cause an error
-dataset.noNA <- dataset |> 
+data.noNA <- data |> 
   drop_na()
 
 # The numerical predictor variable that we want
-num <- target_by(dataset.noNA,refugees)
+num <- target_by(data.noNA, Sap_Flow)
 
 # Relating the variable of interest to the numerical target variable
-num_num <- relate(num,asylum_seekers )
+num_num <- relate(num, pLWP)
 
 # Summary of the regression analysis - the same as the summary from lm(Formula)
 summary(num_num)
+
+
 ```
 
 ```{r}
@@ -140,40 +152,22 @@ plot(num_num)
 
 ```
 
-```{r}
-(x=dataset["asylum_seekers"] |>
-  max())
-(y=dataset["asylum_seekers"] |>
-  min())
-
-(mean_asylum_seekers = (x+y)/2)
-# Adding a categorical group
-dataset <- dataset |>
-mutate(rate_asylum_seekers = ifelse(dataset["asylum_seekers"] >mean_asylum_seekers, "High",ifelse(dataset["asylum_seekers"]<= mean_asylum_seekers & dataset["asylum_seekers"]> 0,"low","none")),
-       rate_asylum_seekers=fct_rev(rate_asylum_seekers)) # Reverse factor levels
-# The top inforamtion in the dataset
-dataset |>
-  head() |>
-  formattable()
-```
-
 ### **Numerical Target Variables: Categorical Variable of Interest**
 
-Formula: `asylum_seekers(numerical response) ~ rate_asylum_seekers (categorical predictor)`
+Formula: `pLWP (numerical response) ~ Group (categorical predictor)`
 
 ```{r}
 # The categorical predictor variable that we want
-num <- target_by(dataset,refugees) 
+num <- target_by(data, pLWP) 
 
 # We need to change Group to a factor
-num$coo_name <- as.factor(num$coo_name)
+num$Group <- as.factor(num$Group)
 
 # Relating the variable of interest to the numerical target variable
-num_cat <- relate(num,stateless)
+num_cat <- relate(num, Group)
 
 # Summary of the ANOVA analysis - the same as the summary from anova(lm(Formula))
 summary(num_cat)
-
 
 ```
 
@@ -186,14 +180,14 @@ plot(num_cat) +
 
 Note that this produces descriptive statistics, unlike the other relationships we are looking at.
 
-Formula: `Group (categorical) ~ pLWP (numerical)`
+Formula: `Group (categorical) ~ pLWP (numerical)`
 
 ```{r}
 # The categorical predictor variable that we want
-categ <- target_by(dataset, refugees)
+categ <- target_by(data, Group)
 
 # Relating the variable of interest to the numerical target variable
-cat_num <- relate(categ, idps)
+cat_num <- relate(categ, pLWP)
 
 # Summary of descriptive statistics
 summary(cat_num)
@@ -205,13 +199,15 @@ plot(cat_num)
 
 ## Categorical Target Variables: Categorical Variable of Interest
 
+We only have 1 categorical variable, so creating another.
+
 ```{r}
 # Create new categorical column
-cat_dataset <- dataset |>
-  select(refugees, coo) |>
+cat_dataset <- data |>
+  select(pLWP, Group) |>
   drop_na() |>
-  mutate(rate_refugees = ifelse(
-    refugees > (mean(refugees + sd(refugees))), 
+  mutate(HighLWP = ifelse(
+    pLWP > (mean(pLWP + sd(pLWP))), 
                           "Yes", 
                           "No"))
 
@@ -219,16 +215,18 @@ cat_dataset <- dataset |>
 cat_dataset |>
   head() |>
   formattable()
+
+
 ```
 
 Now we have two categories!
 
 ```{r,error=TRUE}
 # The categorical predictor variable that we want
-categ <- target_by(cat_dataset,rate_refugees)
+categ <- target_by(cat_dataset, HighLWP)
 
 # Relating the variable of interest to the categorical target variable
-cat_cat <- relate(categ, coo_name)
+cat_cat <- relate(categ, Group)
 
 # Summary of the Chi-square test for Independence
 summary(cat_cat)
@@ -236,8 +234,4 @@ summary(cat_cat)
 
 ```{r,error=TRUE}
 plot(cat_cat)
-```
-
-```{r}
-
 ```

@@ -3181,15 +3181,196 @@ See help("Deprecated")</code></pre>
 <p><img src="hw-02-05_files/figure-html/unnamed-chunk-6-199.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>This is great, we have our correlations within groups! However, the correlation matrices aren't always the most intuitive, so let's plot!</p>
+<p>This is great, we have our correlations within groups! However, the correlation matrices aren’t always the most intuitive, so let’s plot!</p>
 <p>We will be using the <code>ggpairs()</code> function within the <code>GGally</code> package. Specifically, we are looking at the correlations between predawn leaf water potential <code>pLWP</code> and midday leaf water potential <code>mLWP</code>. Leaf water potential is a key indicator for how stressed plants are in droughts.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb225"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb225-1"><a href="#cb225-1" aria-hidden="true" tabindex="-1"></a>dataset <span class="sc">|&gt;</span> </span>
 <span id="cb225-2"><a href="#cb225-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(refugees,returned_refugees,asylum_seekers) <span class="sc">|&gt;</span></span>
 <span id="cb225-3"><a href="#cb225-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ggpairs</span>(<span class="fu">aes</span>(<span class="at">color=</span><span class="st">"red"</span> ,<span class="at">alpha =</span> <span class="fl">0.5</span>)) <span class="sc">+</span></span>
-<span id="cb225-4"><a href="#cb225-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">strip.background =</span> <span class="fu">element_blank</span>())  <span class="co"># I don't like facet strip backgrounds...</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb225-4"><a href="#cb225-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">strip.background =</span> <span class="fu">element_blank</span>())  <span class="co"># Removing facet strip backgrounds</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="hw-02-05_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<ul>
+<li>Since the dataset - Refugee Dataset I use does not contain all the required data for Operations I am changing the data to the default dataset used in the github.</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb226"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb226-1"><a href="#cb226-1" aria-hidden="true" tabindex="-1"></a>data <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">".</span><span class="sc">\\</span><span class="st">Data</span><span class="sc">\\</span><span class="st">Figure 2</span><span class="sc">\\</span><span class="st">Data_Fig2_Repo.csv"</span>)</span>
+<span id="cb226-2"><a href="#cb226-2" aria-hidden="true" tabindex="-1"></a>data[<span class="st">"Sap_Flow"</span>] <span class="ot">=</span>data[<span class="st">"SF"</span>]</span>
+<span id="cb226-3"><a href="#cb226-3" aria-hidden="true" tabindex="-1"></a>data <span class="sc">|&gt;</span></span>
+<span id="cb226-4"><a href="#cb226-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>()<span class="sc">|&gt;</span></span>
+<span id="cb226-5"><a href="#cb226-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">formattable</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+
+<table class="table table-condensed">
+<thead>
+<tr>
+<th style="text-align:right;">
+Date
+</th>
+<th style="text-align:right;">
+Group
+</th>
+<th style="text-align:right;">
+SF
+</th>
+<th style="text-align:right;">
+Normalized_TWF
+</th>
+<th style="text-align:right;">
+pLWP
+</th>
+<th style="text-align:right;">
+mLWP
+</th>
+<th style="text-align:right;">
+Sap_Flow
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:right;">
+2019-10-04
+</td>
+<td style="text-align:right;">
+Drought-sensitive canopy
+</td>
+<td style="text-align:right;">
+184.040975
+</td>
+<td style="text-align:right;">
+82.243292
+</td>
+<td style="text-align:right;">
+-0.2633781
+</td>
+<td style="text-align:right;">
+-0.6797690
+</td>
+<td style="text-align:right;">
+184.040975
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2019-10-04
+</td>
+<td style="text-align:right;">
+Drought-sensitive understory
+</td>
+<td style="text-align:right;">
+2.475989
+</td>
+<td style="text-align:right;">
+1.258050
+</td>
+<td style="text-align:right;">
+-0.2996688
+</td>
+<td style="text-align:right;">
+-0.7613264
+</td>
+<td style="text-align:right;">
+2.475989
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2019-10-04
+</td>
+<td style="text-align:right;">
+Drought-tolerant canopy
+</td>
+<td style="text-align:right;">
+10.598949
+</td>
+<td style="text-align:right;">
+4.405479
+</td>
+<td style="text-align:right;">
+-0.4375563
+</td>
+<td style="text-align:right;">
+-0.7225572
+</td>
+<td style="text-align:right;">
+10.598949
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2019-10-04
+</td>
+<td style="text-align:right;">
+Drought-tolerant understory
+</td>
+<td style="text-align:right;">
+4.399854
+</td>
+<td style="text-align:right;">
+2.055276
+</td>
+<td style="text-align:right;">
+-0.2052237
+</td>
+<td style="text-align:right;">
+-0.7028581
+</td>
+<td style="text-align:right;">
+4.399854
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2019-10-05
+</td>
+<td style="text-align:right;">
+Drought-sensitive canopy
+</td>
+<td style="text-align:right;">
+182.905444
+</td>
+<td style="text-align:right;">
+95.865255
+</td>
+<td style="text-align:right;">
+-0.2769280
+</td>
+<td style="text-align:right;">
+-0.7082610
+</td>
+<td style="text-align:right;">
+182.905444
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+2019-10-05
+</td>
+<td style="text-align:right;">
+Drought-sensitive understory
+</td>
+<td style="text-align:right;">
+2.459209
+</td>
+<td style="text-align:right;">
+1.225792
+</td>
+<td style="text-align:right;">
+-0.3205980
+</td>
+<td style="text-align:right;">
+-0.7928576
+</td>
+<td style="text-align:right;">
+2.459209
+</td>
+</tr>
+</tbody>
+
+</table>
 </div>
 </div>
 </section>
@@ -3202,467 +3383,20 @@ See help("Deprecated")</code></pre>
 </section>
 <section id="numerical-target-variables-numerical-variable-of-interest" class="level3">
 <h3 class="anchored" data-anchor-id="numerical-target-variables-numerical-variable-of-interest">Numerical Target Variables: Numerical Variable of Interest</h3>
-<p><code>Formula: refugees(numerical response)  ~ asylum_seekers(numerical predictor)</code></p>
+<p><code>Formula: Sap_Flow (numerical response)  ~ pLWP (numerical predictor)</code></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb226"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb226-1"><a href="#cb226-1" aria-hidden="true" tabindex="-1"></a><span class="co"># First, we need to remove NAs, they cause an error</span></span>
-<span id="cb226-2"><a href="#cb226-2" aria-hidden="true" tabindex="-1"></a>dataset.noNA <span class="ot">&lt;-</span> dataset <span class="sc">|&gt;</span> </span>
-<span id="cb226-3"><a href="#cb226-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>()</span>
-<span id="cb226-4"><a href="#cb226-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb226-5"><a href="#cb226-5" aria-hidden="true" tabindex="-1"></a><span class="co"># The numerical predictor variable that we want</span></span>
-<span id="cb226-6"><a href="#cb226-6" aria-hidden="true" tabindex="-1"></a>num <span class="ot">&lt;-</span> <span class="fu">target_by</span>(dataset.noNA,refugees)</span>
-<span id="cb226-7"><a href="#cb226-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb226-8"><a href="#cb226-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Relating the variable of interest to the numerical target variable</span></span>
-<span id="cb226-9"><a href="#cb226-9" aria-hidden="true" tabindex="-1"></a>num_num <span class="ot">&lt;-</span> <span class="fu">relate</span>(num,asylum_seekers )</span>
-<span id="cb226-10"><a href="#cb226-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb226-11"><a href="#cb226-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary of the regression analysis - the same as the summary from lm(Formula)</span></span>
-<span id="cb226-12"><a href="#cb226-12" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(num_num)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>
-Call:
-lm(formula = formula_str, data = data)
-
-Residuals:
-   Min     1Q Median     3Q    Max 
- -8629  -4726  -4483  -2924  46997 
-
-Coefficients:
-                Estimate Std. Error t value Pr(&gt;|t|)
-(Intercept)    4.726e+03  3.466e+03   1.364    0.193
-asylum_seekers 1.630e-02  2.637e-02   0.618    0.546
-
-Residual standard error: 13520 on 15 degrees of freedom
-Multiple R-squared:  0.02482,   Adjusted R-squared:  -0.04019 
-F-statistic: 0.3818 on 1 and 15 DF,  p-value: 0.5459</code></pre>
-</div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb228"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb228-1"><a href="#cb228-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the linear relationship</span></span>
-<span id="cb228-2"><a href="#cb228-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(num_num) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<p><img src="hw-02-05_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid" width="672"></p>
-</div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb229"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb229-1"><a href="#cb229-1" aria-hidden="true" tabindex="-1"></a>(<span class="at">x=</span>dataset[<span class="st">"asylum_seekers"</span>] <span class="sc">|&gt;</span></span>
-<span id="cb229-2"><a href="#cb229-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">max</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 940668</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb231"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb231-1"><a href="#cb231-1" aria-hidden="true" tabindex="-1"></a>(<span class="at">y=</span>dataset[<span class="st">"asylum_seekers"</span>] <span class="sc">|&gt;</span></span>
-<span id="cb231-2"><a href="#cb231-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">min</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 0</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb233"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb233-1"><a href="#cb233-1" aria-hidden="true" tabindex="-1"></a>(<span class="at">mean_asylum_seekers =</span> (x<span class="sc">+</span>y)<span class="sc">/</span><span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 470334</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb235"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb235-1"><a href="#cb235-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Adding a categorical group</span></span>
-<span id="cb235-2"><a href="#cb235-2" aria-hidden="true" tabindex="-1"></a>dataset <span class="ot">&lt;-</span> dataset <span class="sc">|&gt;</span></span>
-<span id="cb235-3"><a href="#cb235-3" aria-hidden="true" tabindex="-1"></a><span class="fu">mutate</span>(<span class="at">rate_asylum_seekers =</span> <span class="fu">ifelse</span>(dataset[<span class="st">"asylum_seekers"</span>] <span class="sc">&gt;</span>mean_asylum_seekers, <span class="st">"High"</span>,<span class="fu">ifelse</span>(dataset[<span class="st">"asylum_seekers"</span>]<span class="sc">&lt;=</span> mean_asylum_seekers <span class="sc">&amp;</span> dataset[<span class="st">"asylum_seekers"</span>]<span class="sc">&gt;</span> <span class="dv">0</span>,<span class="st">"low"</span>,<span class="st">"none"</span>)),</span>
-<span id="cb235-4"><a href="#cb235-4" aria-hidden="true" tabindex="-1"></a>       <span class="at">rate_asylum_seekers=</span><span class="fu">fct_rev</span>(rate_asylum_seekers)) <span class="co"># Reverse factor levels</span></span>
-<span id="cb235-5"><a href="#cb235-5" aria-hidden="true" tabindex="-1"></a><span class="co"># The top inforamtion in the dataset</span></span>
-<span id="cb235-6"><a href="#cb235-6" aria-hidden="true" tabindex="-1"></a>dataset <span class="sc">|&gt;</span></span>
-<span id="cb235-7"><a href="#cb235-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>() <span class="sc">|&gt;</span></span>
-<span id="cb235-8"><a href="#cb235-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">formattable</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-
-<table class="table table-condensed">
-<thead>
-<tr>
-<th style="text-align:right;">
-year
-</th>
-<th style="text-align:right;">
-coo_name
-</th>
-<th style="text-align:right;">
-coo
-</th>
-<th style="text-align:right;">
-coo_iso
-</th>
-<th style="text-align:right;">
-coa_name
-</th>
-<th style="text-align:right;">
-coa
-</th>
-<th style="text-align:right;">
-coa_iso
-</th>
-<th style="text-align:right;">
-refugees
-</th>
-<th style="text-align:right;">
-asylum_seekers
-</th>
-<th style="text-align:right;">
-returned_refugees
-</th>
-<th style="text-align:right;">
-idps
-</th>
-<th style="text-align:right;">
-returned_idps
-</th>
-<th style="text-align:right;">
-stateless
-</th>
-<th style="text-align:right;">
-ooc
-</th>
-<th style="text-align:right;">
-oip
-</th>
-<th style="text-align:right;">
-hst
-</th>
-<th style="text-align:right;">
-rate_asylum_seekers
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:right;">
-2010
-</td>
-<td style="text-align:right;">
-Afghanistan
-</td>
-<td style="text-align:right;">
-AFG
-</td>
-<td style="text-align:right;">
-AFG
-</td>
-<td style="text-align:right;">
-Afghanistan
-</td>
-<td style="text-align:right;">
-AFG
-</td>
-<td style="text-align:right;">
-AFG
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-351907
-</td>
-<td style="text-align:right;">
-3366
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-838250
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-none
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-2010
-</td>
-<td style="text-align:right;">
-Iran (Islamic Rep.&nbsp;of)
-</td>
-<td style="text-align:right;">
-IRN
-</td>
-<td style="text-align:right;">
-IRN
-</td>
-<td style="text-align:right;">
-Afghanistan
-</td>
-<td style="text-align:right;">
-AFG
-</td>
-<td style="text-align:right;">
-AFG
-</td>
-<td style="text-align:right;">
-30
-</td>
-<td style="text-align:right;">
-21
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-low
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-2010
-</td>
-<td style="text-align:right;">
-Iraq
-</td>
-<td style="text-align:right;">
-IRQ
-</td>
-<td style="text-align:right;">
-IRQ
-</td>
-<td style="text-align:right;">
-Afghanistan
-</td>
-<td style="text-align:right;">
-AFG
-</td>
-<td style="text-align:right;">
-AFG
-</td>
-<td style="text-align:right;">
-6
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-none
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-2010
-</td>
-<td style="text-align:right;">
-Pakistan
-</td>
-<td style="text-align:right;">
-PAK
-</td>
-<td style="text-align:right;">
-PAK
-</td>
-<td style="text-align:right;">
-Afghanistan
-</td>
-<td style="text-align:right;">
-AFG
-</td>
-<td style="text-align:right;">
-AFG
-</td>
-<td style="text-align:right;">
-6398
-</td>
-<td style="text-align:right;">
-9
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-low
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-2010
-</td>
-<td style="text-align:right;">
-Egypt
-</td>
-<td style="text-align:right;">
-ARE
-</td>
-<td style="text-align:right;">
-EGY
-</td>
-<td style="text-align:right;">
-Albania
-</td>
-<td style="text-align:right;">
-ALB
-</td>
-<td style="text-align:right;">
-ALB
-</td>
-<td style="text-align:right;">
-5
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-none
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-2010
-</td>
-<td style="text-align:right;">
-China
-</td>
-<td style="text-align:right;">
-CHI
-</td>
-<td style="text-align:right;">
-CHN
-</td>
-<td style="text-align:right;">
-Albania
-</td>
-<td style="text-align:right;">
-ALB
-</td>
-<td style="text-align:right;">
-ALB
-</td>
-<td style="text-align:right;">
-6
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-0
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-NA
-</td>
-<td style="text-align:right;">
-none
-</td>
-</tr>
-</tbody>
-
-</table>
-</div>
-</div>
-</section>
-<section id="numerical-target-variables-categorical-variable-of-interest" class="level3">
-<h3 class="anchored" data-anchor-id="numerical-target-variables-categorical-variable-of-interest"><strong>Numerical Target Variables: Categorical Variable of Interest</strong></h3>
-<p>Formula: <code>asylum_seekers(numerical response) ~ rate_asylum_seekers (categorical predictor)</code></p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb236"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb236-1"><a href="#cb236-1" aria-hidden="true" tabindex="-1"></a><span class="co"># The categorical predictor variable that we want</span></span>
-<span id="cb236-2"><a href="#cb236-2" aria-hidden="true" tabindex="-1"></a>num <span class="ot">&lt;-</span> <span class="fu">target_by</span>(dataset,refugees) </span>
-<span id="cb236-3"><a href="#cb236-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb236-4"><a href="#cb236-4" aria-hidden="true" tabindex="-1"></a><span class="co"># We need to change Group to a factor</span></span>
-<span id="cb236-5"><a href="#cb236-5" aria-hidden="true" tabindex="-1"></a>num<span class="sc">$</span>coo_name <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(num<span class="sc">$</span>coo_name)</span>
-<span id="cb236-6"><a href="#cb236-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb236-7"><a href="#cb236-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Relating the variable of interest to the numerical target variable</span></span>
-<span id="cb236-8"><a href="#cb236-8" aria-hidden="true" tabindex="-1"></a>num_cat <span class="ot">&lt;-</span> <span class="fu">relate</span>(num,stateless)</span>
-<span id="cb236-9"><a href="#cb236-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb236-10"><a href="#cb236-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary of the ANOVA analysis - the same as the summary from anova(lm(Formula))</span></span>
-<span id="cb236-11"><a href="#cb236-11" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(num_cat)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb227"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb227-1"><a href="#cb227-1" aria-hidden="true" tabindex="-1"></a><span class="co"># First, we need to remove NAs, they cause an error</span></span>
+<span id="cb227-2"><a href="#cb227-2" aria-hidden="true" tabindex="-1"></a>data.noNA <span class="ot">&lt;-</span> data <span class="sc">|&gt;</span> </span>
+<span id="cb227-3"><a href="#cb227-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>()</span>
+<span id="cb227-4"><a href="#cb227-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb227-5"><a href="#cb227-5" aria-hidden="true" tabindex="-1"></a><span class="co"># The numerical predictor variable that we want</span></span>
+<span id="cb227-6"><a href="#cb227-6" aria-hidden="true" tabindex="-1"></a>num <span class="ot">&lt;-</span> <span class="fu">target_by</span>(data.noNA, Sap_Flow)</span>
+<span id="cb227-7"><a href="#cb227-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb227-8"><a href="#cb227-8" aria-hidden="true" tabindex="-1"></a><span class="co"># Relating the variable of interest to the numerical target variable</span></span>
+<span id="cb227-9"><a href="#cb227-9" aria-hidden="true" tabindex="-1"></a>num_num <span class="ot">&lt;-</span> <span class="fu">relate</span>(num, pLWP)</span>
+<span id="cb227-10"><a href="#cb227-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb227-11"><a href="#cb227-11" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary of the regression analysis - the same as the summary from lm(Formula)</span></span>
+<span id="cb227-12"><a href="#cb227-12" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(num_num)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Call:
@@ -3670,67 +3404,151 @@ lm(formula = formula_str, data = data)
 
 Residuals:
     Min      1Q  Median      3Q     Max 
-  -3445   -3440   -3432   -3352 3733924 
+-32.719 -26.647 -20.924  -0.811 148.353 
 
 Coefficients:
-              Estimate Std. Error t value Pr(&gt;|t|)    
-(Intercept)  3.445e+03  2.172e+02  15.859   &lt;2e-16 ***
-stateless   -6.122e-03  1.086e-02  -0.564    0.573    
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)   42.167      7.971   5.290 2.51e-07 ***
+pLWP          24.600     12.266   2.006   0.0459 *  
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
-Residual standard error: 55260 on 64807 degrees of freedom
-Multiple R-squared:  4.901e-06, Adjusted R-squared:  -1.053e-05 
-F-statistic: 0.3176 on 1 and 64807 DF,  p-value: 0.5731</code></pre>
+Residual standard error: 46.2 on 274 degrees of freedom
+Multiple R-squared:  0.01447,   Adjusted R-squared:  0.01087 
+F-statistic: 4.022 on 1 and 274 DF,  p-value: 0.04589</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb238"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb238-1"><a href="#cb238-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(num_cat) <span class="sc">+</span> </span>
-<span id="cb238-2"><a href="#cb238-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_blank</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb229"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb229-1"><a href="#cb229-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Plot the linear relationship</span></span>
+<span id="cb229-2"><a href="#cb229-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(num_num) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="hw-02-05_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="numerical-target-variables-categorical-variable-of-interest" class="level3">
+<h3 class="anchored" data-anchor-id="numerical-target-variables-categorical-variable-of-interest"><strong>Numerical Target Variables: Categorical Variable of Interest</strong></h3>
+<p>Formula:&nbsp;<code>pLWP (numerical response) ~ Group (categorical predictor)</code></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb230"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb230-1"><a href="#cb230-1" aria-hidden="true" tabindex="-1"></a><span class="co"># The categorical predictor variable that we want</span></span>
+<span id="cb230-2"><a href="#cb230-2" aria-hidden="true" tabindex="-1"></a>num <span class="ot">&lt;-</span> <span class="fu">target_by</span>(data, pLWP) </span>
+<span id="cb230-3"><a href="#cb230-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb230-4"><a href="#cb230-4" aria-hidden="true" tabindex="-1"></a><span class="co"># We need to change Group to a factor</span></span>
+<span id="cb230-5"><a href="#cb230-5" aria-hidden="true" tabindex="-1"></a>num<span class="sc">$</span>Group <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(num<span class="sc">$</span>Group)</span>
+<span id="cb230-6"><a href="#cb230-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb230-7"><a href="#cb230-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Relating the variable of interest to the numerical target variable</span></span>
+<span id="cb230-8"><a href="#cb230-8" aria-hidden="true" tabindex="-1"></a>num_cat <span class="ot">&lt;-</span> <span class="fu">relate</span>(num, Group)</span>
+<span id="cb230-9"><a href="#cb230-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb230-10"><a href="#cb230-10" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary of the ANOVA analysis - the same as the summary from anova(lm(Formula))</span></span>
+<span id="cb230-11"><a href="#cb230-11" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(num_cat)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = formula(formula_str), data = data)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.73720 -0.09700  0.03598  0.11314  0.40655 
+
+Coefficients:
+                                  Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)                       -0.66993    0.02466 -27.166  &lt; 2e-16 ***
+GroupDrought-sensitive understory -0.02621    0.03488  -0.751    0.453    
+GroupDrought-tolerant canopy       0.04002    0.03488   1.148    0.252    
+GroupDrought-tolerant understory   0.22969    0.03488   6.586 2.33e-10 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 0.2048 on 272 degrees of freedom
+  (312 observations deleted due to missingness)
+Multiple R-squared:  0.1956,    Adjusted R-squared:  0.1867 
+F-statistic: 22.05 on 3 and 272 DF,  p-value: 8.267e-13</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb232"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb232-1"><a href="#cb232-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(num_cat) <span class="sc">+</span> </span>
+<span id="cb232-2"><a href="#cb232-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_blank</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 312 rows containing non-finite values (`stat_boxplot()`).</code></pre>
+</div>
 <div class="cell-output-display">
 <p><img src="hw-02-05_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid" width="672"></p>
-</div>
-<div class="cell-output cell-output-stdout">
-<pre><code>NULL</code></pre>
 </div>
 </div>
 </section>
 <section id="categorical-target-variables-numerical-variable-of-interest" class="level3">
 <h3 class="anchored" data-anchor-id="categorical-target-variables-numerical-variable-of-interest">Categorical Target Variables: Numerical Variable of Interest</h3>
 <p>Note that this produces descriptive statistics, unlike the other relationships we are looking at.</p>
-<p>Formula: <code>Group (categorical) ~ pLWP (numerical)</code></p>
+<p>Formula:&nbsp;<code>Group (categorical) ~ pLWP (numerical)</code></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb240"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb240-1"><a href="#cb240-1" aria-hidden="true" tabindex="-1"></a><span class="co"># The categorical predictor variable that we want</span></span>
-<span id="cb240-2"><a href="#cb240-2" aria-hidden="true" tabindex="-1"></a>categ <span class="ot">&lt;-</span> <span class="fu">target_by</span>(dataset, refugees)</span>
-<span id="cb240-3"><a href="#cb240-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb240-4"><a href="#cb240-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Relating the variable of interest to the numerical target variable</span></span>
-<span id="cb240-5"><a href="#cb240-5" aria-hidden="true" tabindex="-1"></a>cat_num <span class="ot">&lt;-</span> <span class="fu">relate</span>(categ, idps)</span>
-<span id="cb240-6"><a href="#cb240-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb240-7"><a href="#cb240-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary of descriptive statistics</span></span>
-<span id="cb240-8"><a href="#cb240-8" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(cat_num)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb234"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb234-1"><a href="#cb234-1" aria-hidden="true" tabindex="-1"></a><span class="co"># The categorical predictor variable that we want</span></span>
+<span id="cb234-2"><a href="#cb234-2" aria-hidden="true" tabindex="-1"></a>categ <span class="ot">&lt;-</span> <span class="fu">target_by</span>(data, Group)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in target_by_impl(.data, vars): The target variable was assigned a
+character type.</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb236"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb236-1"><a href="#cb236-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Relating the variable of interest to the numerical target variable</span></span>
+<span id="cb236-2"><a href="#cb236-2" aria-hidden="true" tabindex="-1"></a>cat_num <span class="ot">&lt;-</span> <span class="fu">relate</span>(categ, pLWP)</span>
+<span id="cb236-3"><a href="#cb236-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb236-4"><a href="#cb236-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary of descriptive statistics</span></span>
+<span id="cb236-5"><a href="#cb236-5" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(cat_num)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>
-Call:
-lm(formula = formula_str, data = data)
-
-Residuals:
-    Min      1Q  Median      3Q     Max 
-  -3447   -3442   -3434   -3353 3733922 
-
-Coefficients:
-              Estimate Std. Error t value Pr(&gt;|t|)    
-(Intercept)  3.447e+03  2.173e+02  15.864   &lt;2e-16 ***
-idps        -9.159e-04  1.330e-03  -0.689    0.491    
----
-Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-
-Residual standard error: 55260 on 64807 degrees of freedom
-Multiple R-squared:  7.315e-06, Adjusted R-squared:  -8.116e-06 
-F-statistic: 0.4741 on 1 and 64807 DF,  p-value: 0.4911</code></pre>
+<pre><code> described_variables    Group                 n               na       
+ Length:5            Length:5           Min.   : 69.0   Min.   : 78.0  
+ Class :character    Class :character   1st Qu.: 69.0   1st Qu.: 78.0  
+ Mode  :character    Mode  :character   Median : 69.0   Median : 78.0  
+                                        Mean   :110.4   Mean   :124.8  
+                                        3rd Qu.: 69.0   3rd Qu.: 78.0  
+                                        Max.   :276.0   Max.   :312.0  
+      mean               sd             se_mean             IQR        
+ Min.   :-0.6961   Min.   :0.09557   Min.   :0.01151   Min.   :0.1351  
+ 1st Qu.:-0.6699   1st Qu.:0.13188   1st Qu.:0.01367   1st Qu.:0.1597  
+ Median :-0.6299   Median :0.22715   Median :0.01588   Median :0.2640  
+ Mean   :-0.6091   Mean   :0.19699   Mean   :0.02098   Mean   :0.2310  
+ 3rd Qu.:-0.6091   3rd Qu.:0.24639   3rd Qu.:0.02966   3rd Qu.:0.2788  
+ Max.   :-0.4402   Max.   :0.28394   Max.   :0.03418   Max.   :0.3173  
+    skewness          kurtosis            p00               p01         
+ Min.   :-1.1510   Min.   :-0.5921   Min.   :-1.4333   Min.   :-1.4307  
+ 1st Qu.:-1.1047   1st Qu.:-0.4320   1st Qu.:-1.4333   1st Qu.:-1.3160  
+ Median :-0.4644   Median :-0.2744   Median :-1.2993   Median :-1.2538  
+ Mean   :-0.7009   Mean   : 0.1897   Mean   :-1.1553   Mean   :-1.1133  
+ 3rd Qu.:-0.4333   3rd Qu.: 0.4796   3rd Qu.:-0.8637   3rd Qu.:-0.8388  
+ Max.   :-0.3510   Max.   : 1.7675   Max.   :-0.7467   Max.   :-0.7272  
+      p05               p10               p20               p25         
+ Min.   :-1.3067   Min.   :-1.1449   Min.   :-0.9067   Min.   :-0.8000  
+ 1st Qu.:-1.0870   1st Qu.:-1.0047   1st Qu.:-0.8587   1st Qu.:-0.7906  
+ Median :-1.0666   Median :-0.8802   Median :-0.7339   Median :-0.7140  
+ Mean   :-0.9838   Mean   :-0.8878   Mean   :-0.7583   Mean   :-0.7063  
+ 3rd Qu.:-0.7816   3rd Qu.:-0.7724   3rd Qu.:-0.7304   3rd Qu.:-0.7065  
+ Max.   :-0.6772   Max.   :-0.6366   Max.   :-0.5619   Max.   :-0.5205  
+      p30               p40               p50               p60         
+ Min.   :-0.7386   Min.   :-0.7204   Min.   :-0.7059   Min.   :-0.6206  
+ 1st Qu.:-0.7076   1st Qu.:-0.6299   1st Qu.:-0.6028   1st Qu.:-0.5861  
+ Median :-0.6801   Median :-0.6292   Median :-0.5921   Median :-0.5855  
+ Mean   :-0.6590   Mean   :-0.6079   Mean   :-0.5787   Mean   :-0.5487  
+ 3rd Qu.:-0.6790   3rd Qu.:-0.6171   3rd Qu.:-0.5862   3rd Qu.:-0.5536  
+ Max.   :-0.4896   Max.   :-0.4427   Max.   :-0.4064   Max.   :-0.3978  
+      p70               p75               p80               p90         
+ Min.   :-0.5758   Min.   :-0.5714   Min.   :-0.5653   Min.   :-0.5150  
+ 1st Qu.:-0.5504   1st Qu.:-0.5212   1st Qu.:-0.4907   1st Qu.:-0.4243  
+ Median :-0.5269   Median :-0.4733   Median :-0.4259   Median :-0.3519  
+ Mean   :-0.5068   Mean   :-0.4753   Mean   :-0.4446   Mean   :-0.3812  
+ 3rd Qu.:-0.4925   3rd Qu.:-0.4500   3rd Qu.:-0.4088   3rd Qu.:-0.3394  
+ Max.   :-0.3883   Max.   :-0.3608   Max.   :-0.3325   Max.   :-0.2756  
+      p95               p99               p100        
+ Min.   :-0.5100   Min.   :-0.4609   Min.   :-0.4376  
+ 1st Qu.:-0.3700   1st Qu.:-0.3139   1st Qu.:-0.2997  
+ Median :-0.3049   Median :-0.2726   Median :-0.2634  
+ Mean   :-0.3457   Mean   :-0.2994   Mean   :-0.2822  
+ 3rd Qu.:-0.3004   3rd Qu.:-0.2363   3rd Qu.:-0.2052  
+ Max.   :-0.2430   Max.   :-0.2133   Max.   :-0.2052  </code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb242"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb242-1"><a href="#cb242-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(cat_num)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb238"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb238-1"><a href="#cb238-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(cat_num)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Removed 312 rows containing non-finite values (`stat_density()`).</code></pre>
+</div>
 <div class="cell-output-display">
 <p><img src="hw-02-05_files/figure-html/unnamed-chunk-14-1.png" class="img-fluid" width="672"></p>
 </div>
@@ -3739,43 +3557,66 @@ F-statistic: 0.4741 on 1 and 64807 DF,  p-value: 0.4911</code></pre>
 </section>
 <section id="categorical-target-variables-categorical-variable-of-interest" class="level2">
 <h2 class="anchored" data-anchor-id="categorical-target-variables-categorical-variable-of-interest">Categorical Target Variables: Categorical Variable of Interest</h2>
+<p>We only have 1 categorical variable, so creating another.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb243"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb243-1"><a href="#cb243-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create new categorical column</span></span>
-<span id="cb243-2"><a href="#cb243-2" aria-hidden="true" tabindex="-1"></a>cat_dataset <span class="ot">&lt;-</span> dataset <span class="sc">|&gt;</span></span>
-<span id="cb243-3"><a href="#cb243-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(refugees, coo) <span class="sc">|&gt;</span></span>
-<span id="cb243-4"><a href="#cb243-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>() <span class="sc">|&gt;</span></span>
-<span id="cb243-5"><a href="#cb243-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">rate_refugees =</span> <span class="fu">ifelse</span>(</span>
-<span id="cb243-6"><a href="#cb243-6" aria-hidden="true" tabindex="-1"></a>    refugees <span class="sc">&gt;</span> (<span class="fu">mean</span>(refugees <span class="sc">+</span> <span class="fu">sd</span>(refugees))), </span>
-<span id="cb243-7"><a href="#cb243-7" aria-hidden="true" tabindex="-1"></a>                          <span class="st">"Yes"</span>, </span>
-<span id="cb243-8"><a href="#cb243-8" aria-hidden="true" tabindex="-1"></a>                          <span class="st">"No"</span>))</span>
-<span id="cb243-9"><a href="#cb243-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb243-10"><a href="#cb243-10" aria-hidden="true" tabindex="-1"></a><span class="co"># New dataset </span></span>
-<span id="cb243-11"><a href="#cb243-11" aria-hidden="true" tabindex="-1"></a>cat_dataset <span class="sc">|&gt;</span></span>
-<span id="cb243-12"><a href="#cb243-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>() <span class="sc">|&gt;</span></span>
-<span id="cb243-13"><a href="#cb243-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">formattable</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb240"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb240-1"><a href="#cb240-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create new categorical column</span></span>
+<span id="cb240-2"><a href="#cb240-2" aria-hidden="true" tabindex="-1"></a>cat_dataset <span class="ot">&lt;-</span> data <span class="sc">|&gt;</span></span>
+<span id="cb240-3"><a href="#cb240-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(pLWP, Group) <span class="sc">|&gt;</span></span>
+<span id="cb240-4"><a href="#cb240-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">drop_na</span>() <span class="sc">|&gt;</span></span>
+<span id="cb240-5"><a href="#cb240-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">HighLWP =</span> <span class="fu">ifelse</span>(</span>
+<span id="cb240-6"><a href="#cb240-6" aria-hidden="true" tabindex="-1"></a>    pLWP <span class="sc">&gt;</span> (<span class="fu">mean</span>(pLWP <span class="sc">+</span> <span class="fu">sd</span>(pLWP))), </span>
+<span id="cb240-7"><a href="#cb240-7" aria-hidden="true" tabindex="-1"></a>                          <span class="st">"Yes"</span>, </span>
+<span id="cb240-8"><a href="#cb240-8" aria-hidden="true" tabindex="-1"></a>                          <span class="st">"No"</span>))</span>
+<span id="cb240-9"><a href="#cb240-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb240-10"><a href="#cb240-10" aria-hidden="true" tabindex="-1"></a><span class="co"># New dataset </span></span>
+<span id="cb240-11"><a href="#cb240-11" aria-hidden="true" tabindex="-1"></a>cat_dataset <span class="sc">|&gt;</span></span>
+<span id="cb240-12"><a href="#cb240-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>() <span class="sc">|&gt;</span></span>
+<span id="cb240-13"><a href="#cb240-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">formattable</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 
 <table class="table table-condensed">
 <thead>
 <tr>
 <th style="text-align:right;">
-refugees
+pLWP
 </th>
 <th style="text-align:right;">
-coo
+Group
 </th>
 <th style="text-align:right;">
-rate_refugees
+HighLWP
 </th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td style="text-align:right;">
-0
+-0.2633781
 </td>
 <td style="text-align:right;">
-AFG
+Drought-sensitive canopy
+</td>
+<td style="text-align:right;">
+Yes
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+-0.2996688
+</td>
+<td style="text-align:right;">
+Drought-sensitive understory
+</td>
+<td style="text-align:right;">
+Yes
+</td>
+</tr>
+<tr>
+<td style="text-align:right;">
+-0.4375563
+</td>
+<td style="text-align:right;">
+Drought-tolerant canopy
 </td>
 <td style="text-align:right;">
 No
@@ -3783,57 +3624,35 @@ No
 </tr>
 <tr>
 <td style="text-align:right;">
-30
+-0.2052237
 </td>
 <td style="text-align:right;">
-IRN
+Drought-tolerant understory
 </td>
 <td style="text-align:right;">
-No
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-6
-</td>
-<td style="text-align:right;">
-IRQ
-</td>
-<td style="text-align:right;">
-No
+Yes
 </td>
 </tr>
 <tr>
 <td style="text-align:right;">
-6398
+-0.2769280
 </td>
 <td style="text-align:right;">
-PAK
+Drought-sensitive canopy
 </td>
 <td style="text-align:right;">
-No
-</td>
-</tr>
-<tr>
-<td style="text-align:right;">
-5
-</td>
-<td style="text-align:right;">
-ARE
-</td>
-<td style="text-align:right;">
-No
+Yes
 </td>
 </tr>
 <tr>
 <td style="text-align:right;">
-6
+-0.3205980
 </td>
 <td style="text-align:right;">
-CHI
+Drought-sensitive understory
 </td>
 <td style="text-align:right;">
-No
+Yes
 </td>
 </tr>
 </tbody>
@@ -3843,27 +3662,29 @@ No
 </div>
 <p>Now we have two categories!</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb244"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb244-1"><a href="#cb244-1" aria-hidden="true" tabindex="-1"></a><span class="co"># The categorical predictor variable that we want</span></span>
-<span id="cb244-2"><a href="#cb244-2" aria-hidden="true" tabindex="-1"></a>categ <span class="ot">&lt;-</span> <span class="fu">target_by</span>(cat_dataset,rate_refugees)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb241"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb241-1"><a href="#cb241-1" aria-hidden="true" tabindex="-1"></a><span class="co"># The categorical predictor variable that we want</span></span>
+<span id="cb241-2"><a href="#cb241-2" aria-hidden="true" tabindex="-1"></a>categ <span class="ot">&lt;-</span> <span class="fu">target_by</span>(cat_dataset, HighLWP)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning in target_by_impl(.data, vars): The target variable was assigned a
 character type.</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb246"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb246-1"><a href="#cb246-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Relating the variable of interest to the categorical target variable</span></span>
-<span id="cb246-2"><a href="#cb246-2" aria-hidden="true" tabindex="-1"></a>cat_cat <span class="ot">&lt;-</span> <span class="fu">relate</span>(categ, coo_name)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in value[[3L]](cond): Column predictor is unknown</code></pre>
-</div>
-<div class="sourceCode cell-code" id="cb248"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb248-1"><a href="#cb248-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary of the Chi-square test for Independence</span></span>
-<span id="cb248-2"><a href="#cb248-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(cat_cat)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in eval(expr, envir, enclos): object 'cat_cat' not found</code></pre>
+<div class="sourceCode cell-code" id="cb243"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb243-1"><a href="#cb243-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Relating the variable of interest to the categorical target variable</span></span>
+<span id="cb243-2"><a href="#cb243-2" aria-hidden="true" tabindex="-1"></a>cat_cat <span class="ot">&lt;-</span> <span class="fu">relate</span>(categ, Group)</span>
+<span id="cb243-3"><a href="#cb243-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb243-4"><a href="#cb243-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Summary of the Chi-square test for Independence</span></span>
+<span id="cb243-5"><a href="#cb243-5" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(cat_cat)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Call: xtabs(formula = formula_str, data = data, addNA = TRUE)
+Number of cases in table: 276 
+Number of factors: 2 
+Test for independence of all factors:
+    Chisq = 30.201, df = 3, p-value = 1.252e-06</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb250"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb250-1"><a href="#cb250-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(cat_cat)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-error">
-<pre><code>Error in eval(expr, envir, enclos): object 'cat_cat' not found</code></pre>
+<div class="sourceCode cell-code" id="cb245"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb245-1"><a href="#cb245-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(cat_cat)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="hw-02-05_files/figure-html/unnamed-chunk-17-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
 </section>
